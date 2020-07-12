@@ -16,8 +16,13 @@ io.on('connection', (socket) => {
   console.log('a user connected', socket.id);
 
   // listen to when a client socket send back a msg
-  socket.on('msg', (res) => {
-    console.log(res);
+  socket.on('name', (data) => {
+    console.log(data);
+  });
+
+  // listen to when a client socket send back a msg
+  socket.on('room', (data) => {
+    console.log(data, socket.id);
   });
 
   socket.on('disconnect', () =>{
