@@ -1,8 +1,9 @@
-const express = require('express')
+const express = require('express');
 const app = express();
 const path = require('path');
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
+const Game = require('./server/Game');
 
 //this builds all the static js files for reacts
 app.use(express.static(path.join(__dirname+'/client/build')));
@@ -15,20 +16,20 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
   console.log('a user connected', socket.id);
 
-  // listen to when a client socket send back a msg
-  socket.on('name', (data) => {
-    console.log(data);
+  // listen to when a client creates a new room
+  socket.on('Create Game', (data) => {
+    const game = new Game();
+    game.createGame(data, socket);
   });
 
-  // listen to when a client socket send back a msg
-  socket.on('room', (data) => {
-    console.log(data, socket.id);
+  // listen to when a client wants to join a room
+  socket.on('Join Game', (data) => {
+    Game.joinGame(data, socket);
   });
 
   socket.on('disconnect', () =>{
-    console.log('disconnecting:', socket.id)
+    console.log('disconnecting:', socket.id);
   });
-
 });
 
 
