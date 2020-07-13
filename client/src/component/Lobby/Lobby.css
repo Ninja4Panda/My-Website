@@ -1,0 +1,30 @@
+/* Column container */
+* {
+    box-sizing: border-box;
+}
+
+.container {  
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+}  
+
+.box {
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+/* Create two unequal columns that sits next to each other */
+/* Sidebar/left column */
+.left {
+    flex: 70%;
+    max-width: 70%;
+    background-color: springgreen;
+}
+  
+  /* Main column */
+.right {
+    flex: 30%;
+}
+  
