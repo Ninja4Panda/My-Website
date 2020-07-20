@@ -1,6 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import './SignupForm.css';
 import Lobby from '../Lobby/Lobby';
+import ReactDOM from 'react-dom';
+import logo from '../../logo.svg';
 
 export default function SignupForm({io}) {
   const [button, setbutton] = useState("Create Game");
@@ -15,8 +17,10 @@ export default function SignupForm({io}) {
     event.preventDefault();
     //show error when name is blank
     if (event.target.name.value === "") { 
-      const lobby = document.getElementById("errorName");
-      lobby.style.display = "";
+      ReactDOM.render(
+        <p id="errorName" style={{color:"red"}}>Name cannot be empty</p>,
+        document.getElementById('error')
+      );
       return;
     }
 
@@ -33,33 +37,27 @@ export default function SignupForm({io}) {
     //show lobby & hide signup if room is valid 
     io.on("Join Game Status", (data) => {
       if(data.status) {
-        const form = document.getElementById("signup");
-        form.style.display = "none";
-        const logo = document.getElementsByClassName("App-logo");
-        logo[0].style.display = "none";
-        const room = data.roomid; 
-        console.log(data.roomid)
-        console.log(room)
+        const form = document.getElementById("form");
         
-        const lobby = document.getElementById("lobby");
-        lobby.style.display = "";
+        ReactDOM.render(
+          <Lobby prop={io, data.roomid}/>,
+          document.getElementById('lobby')
+        );
       } else {
-        const error = document.getElementById("errorRoom");
-        error.style.display = "";
+        ReactDOM.render(
+          <p id="errorName" style={{color:"red"}}>No such room</p>,
+          document.getElementById('error')
+        );
       }
     });
   }
 
   return (
     <>
-      <div id="lobby" style={{display:"none"}}>
-        <Lobby prop={io}/>
-      </div>
+      <img src={logo} className="App-logo" alt="logo"/>
       <form id="signup" onSubmit={handleSubmit}>
         <input type="text" id="name" placeholder="Nickname"/>
         <input type="text" id="room" placeholder="Room id (Optional)" onChange={handleChange}/>
-        <p id="errorName" style={{display:"none", color:"red"}}>Name can't be empty</p>
-        <p id="errorRoom" style={{display:"none", color:"red"}}>No such room</p>
         <input className="button" type="submit" value={button}/>
       </form>
     </>

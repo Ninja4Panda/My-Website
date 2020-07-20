@@ -1,5 +1,4 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import socket from 'socket.io-client';
 import Form from './component/SignupForm/SignupForm.js' 
@@ -12,10 +11,10 @@ function App() {
   return (
     <div className="App">
       {/* <NavBar /> */}
-      
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo"/>
-        <Form io={io}/>
+        <div id="lobby"></div>
+        <Form id="form" io={io}/>
+        <div id="error"></div>
       </header>
     </div>
   );
