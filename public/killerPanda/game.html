@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Killer Ninja</title>
+    <script src="/socket.io/socket.io.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="game.css">
 </head>
@@ -12,17 +13,18 @@
         <a href="/index.html">Want to know about me? 💖</a>
         <a href="https://en.wikipedia.org/wiki/Mafia_(party_game)" target="_bank">How to play</a>
     </div>
-    <div class="flex-container">
+    <div id="main" class="flex-container">
         <div class="header">
             <h1>Killer Ninja</h1>
         </div>
         <form id="signup-form" style="display: flex; flex-direction: column;">
-            <div>
-                <input type="text" class="form-control-lg" placeholder="Name" style="border: 0; margin: 6px;">
-                <input type="text" class="form-control-lg" placeholder="Room id (optional)" style="border: 0; margin: 6px;">
+            <div class="form-group">
+                <input type="text" id="name" class="form-control-lg" placeholder="Name" style="border: 0; margin: 6px;">
+                <input type="text" id="roomid" class="form-control-lg" placeholder="Room id (optional)" style="border: 0; margin: 6px;" autocomplete="off">
             </div>
             <button type="submit" id="signup-btn" class="btn btn-primary btn-lg">Create Game</button>
         </form>
+        <script type="module" src="game.js"></script>
     </div>
 </body>
 </html>
