@@ -5,7 +5,11 @@
  * @param {int} whoami    - owner=0, players=1, spectator=2
  */
 export function loadLobby(clientname, socket, roomid, whoami) {
+    //Remove all sign-up html and show roomid
     document.getElementById("signup").remove();
+    const roomLable = document.getElementById("roomid");
+    roomLable.innerText = "Room id: " + roomid;
+    roomLable.style.display = "";
 
     //Create the lobby 
     const main = document.getElementById("main");
@@ -17,46 +21,32 @@ export function loadLobby(clientname, socket, roomid, whoami) {
     //Create left side (characters) 
     const left = document.createElement("div");
     left.id = "players";
-    left.style = "display: grid; align-items: center; flex-grow: 8;";
-    
-    //Create Top left flexbox
-    for (let i = 0; i < 4; i++) {
-        const slot = document.createElement("div");
-        const avator = document.createElement("img");
-        avator.src = "q.jpg";
-        avator.width = "200";
-        avator.height = "300";
-        const name = document.createElement("p");
-        name.innerText = clientname;
-        name.style = "color: white; text-align: center;";
-        slot.appendChild(avator);
-        slot.appendChild(name);
-        left_top.appendChild(slot); 
-    }
-    left.appendChild(left_top);
+    left.style = "display: grid ; grid-template-columns:repeat(4,1fr); align-items: center; flex-grow: 8;";
+    lobby.appendChild(left);
 
-    //Create Bottom left flexbox
-    const left_bot = document.createElement("div");
-    left_bot.style = "display: flex; flex-direction: row; align-items: center; justify-content: space-around;";
-    for (let i = 0; i < 4; i++) {
+    //Create 
+    for (let i = 0; i < 8; i++) {
         const slot = document.createElement("div");
+        slot.style = "text-align: center;";
         const avator = document.createElement("img");
         avator.src = "q.jpg";
         avator.width = "200";
         avator.height = "300";
+        slot.appendChild(avator);
+
         const name = document.createElement("p");
         name.innerText = clientname;
-        name.style = "color: white; text-align: center;";
-        slot.appendChild(avator);
+        name.style.color = "white";
         slot.appendChild(name);
-        left_bot.appendChild(slot); 
+        
+        left.appendChild(slot); 
     }
-    left.appendChild(left_bot);
 
     //Create right side the (contents)
     const right = document.createElement("div");
     right.id = "contents";
     right.style = "display: flex; flex-flow: column wrap; align-items: center; flex-grow: 2";
+    lobby.appendChild(right);
     
     //Create timer for lobby
     const timer = document.createElement("p");
@@ -75,23 +65,26 @@ export function loadLobby(clientname, socket, roomid, whoami) {
         timer.innerText = timeleft + " seconds left until you all get kick HURRY!!!!";
     }, 1000);
     
-    //Create Start Game button
-    const start_btn = document.createElement("button");
-    start_btn.id = "start-game";
-    start_btn.className = "btn btn-primary";
-    start_btn.innerText = "Start Game"; 
-    right.appendChild(start_btn);
-
-    switch(whoami) {
-        case 0:
-            break;
-        case 1:
-            break;
-        case 2:
-            break;
-        default:
-            throw new Error("Whoami permission is wrong!");   
+    //Create Start Game button if owner
+    if (!whoami) {
+        const start_btn = document.createElement("button");
+        start_btn.id = "start-game";
+        start_btn.className = "btn btn-primary";
+        start_btn.innerText = "Start Game"; 
+        right.appendChild(start_btn);
+         
+        start_btn.addEventListener("click", (e) => {
+            socket.emit("Start Game");
+            socket.on("Start Game Status", ({status, msg}) => {
+                if(status) {
+                    //TODO: startGame function
+                    //emits to all user in the room 
+                } else {
+                    //failed and show msg
+                }
+            });
+        });
     }
-    lobby.appendChild(left);
-    lobby.appendChild(right);
+
+
 }

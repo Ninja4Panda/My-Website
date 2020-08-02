@@ -42,7 +42,7 @@ module.exports = class Game {
     
     /**
      * Static function for joinning game 
-     * Since roomid is provided we don't need to get an instance of the object 
+     * Since roomid is provided we can get an instance of the object 
      */
     static joinGame(name, roomid, socket) {
         const game = gameRooms[roomid];
@@ -62,8 +62,9 @@ module.exports = class Game {
                 // whoami defines the client that joins the room 
                 // owner=0, players=1, spectators=2
                 socket.emit("Join Game Status", {status:true, whoami:1});
+                socket.to(roomid).emit("A New player joined", {name: name});
             });
-            console.log(game)
+            console.log(game);
         }
     }
 
@@ -80,7 +81,7 @@ module.exports = class Game {
 
     //return game object based on a socket
     static getGameBySocket(socket) {
-
+        
     }
 
     //Add game object into list of game rooms
