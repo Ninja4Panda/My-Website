@@ -2,12 +2,13 @@ const express = require("express");
 const app = express();
 const path = require("path");
 const http = require("http").createServer(app);
-const io = require("socket.io")(http);
+const io = require("socket.io")(http);//set options & use cors/csp
+
 const Game = require("./server/Game");
 
 //Builds all public files for pages
 app.use(express.static(path.join(__dirname+"/public")));
-app.use(express.static(path.join(__dirname+"/public/killerPanda")));
+app.use(express.static(path.join(__dirname+"/Game")));
 
 //On every client connection
 io.on("connection", (socket) => {
@@ -39,7 +40,7 @@ io.on("connection", (socket) => {
 
 //=========== routes ==============
 app.get("/game",(req, res) => {
-  res.sendFile(__dirname+"/public/killerPanda/game.html");
+  res.sendFile(__dirname+"/Game/game.html");
 });
 
 // Handles page not found error

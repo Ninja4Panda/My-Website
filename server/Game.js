@@ -61,6 +61,7 @@ module.exports = class Game {
                 // whoami defines the permission of client that joins the room 
                 // owner=0, players=1, spectators=2
                 // curPlayers send a list of current players in the room 
+                console.log(Object.values(game.players));
                 socket.emit("Join Game Status", {status:true, whoami:1, curPlayers: Object.values(game.players)});
                 socket.to(roomid).emit("A New player joined", {name: name});
             });
