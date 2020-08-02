@@ -11,8 +11,11 @@ const socket = io();
 const form = document.getElementById("signup-form"); 
 form.addEventListener("submit", (event) => {
     event.preventDefault();
+    const name = event.target.name.value;
+    const roomid = event.target.roomid.value;
+
     //Check for empty name
-    if (event.target.name.value === "") { 
+    if (name === "") { 
         const error_msg = document.getElementById("error-msg");
         error_msg.style = "color: red; font-size: 20px;";
         error_msg.innerText = "Please at least tell me your name 🐵";
@@ -20,22 +23,22 @@ form.addEventListener("submit", (event) => {
     }
     
     //Check for empty roomid 
-    if (event.target.roomid.value === "") {
-        socket.emit("Create Game", {name:event.target.name.value});
+    if (roomid === "") {
+        socket.emit("Create Game", {name:name});
         //As of now Create Game always return true as status 
         socket.on("Create Game Status", ({status, roomid}) => {
             if(status) {
-                loadLobby(event.target.name.value, socket, roomid, 0);
+                loadLobby(name, socket, roomid, 0);
             }
         });
     } else {
         socket.emit("Join Game", {
-            name:event.target.name.value,
-            roomid:event.target.roomid.value
+            name:name,
+            roomid:roomid
         }); 
-        socket.on("Join Game Status", ({status, whoami}) => {
+        socket.on("Join Game Status", ({status, whoami, curPlayers}) => {
             if(status) {
-                loadLobby(event.target.name.value, socket, event.target.roomid, whoami);
+                loadLobby(name, socket, roomid, whoami, curPlayers);
             } else {
                 const error_msg = document.getElementById("error-msg");
                 error_msg.style = "color: red; font-size: 20px;";

@@ -4,7 +4,7 @@
  * @param {string} roomid - Current Game roomid 
  * @param {int} whoami    - owner=0, players=1, spectator=2
  */
-export function loadLobby(clientname, socket, roomid, whoami) {
+export function loadLobby(clientname, socket, roomid, whoami, curPlayers) {
     //Remove all sign-up html and show roomid
     document.getElementById("signup").remove();
     const roomLable = document.getElementById("roomid");
@@ -25,6 +25,7 @@ export function loadLobby(clientname, socket, roomid, whoami) {
     lobby.appendChild(left);
 
     //Create 
+    // socket.on
     for (let i = 0; i < 8; i++) {
         const slot = document.createElement("div");
         slot.style = "text-align: center;";
@@ -83,6 +84,10 @@ export function loadLobby(clientname, socket, roomid, whoami) {
                     //failed and show msg
                 }
             });
+        });
+    } else {
+        curPlayers.forEach(player=>{
+            console.log(player.name);
         });
     }
 

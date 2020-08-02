@@ -1,8 +1,9 @@
 module.exports = class Player { 
-    constructor(name) {
+    constructor(name, ownership) {
         this.name = name;
         this.alive = true;
         this.role;
+        this.isOwner = ownership;
     }
 
     //setters
@@ -13,4 +14,5 @@ module.exports = class Player {
     //getters
     get getName() {return this.name;}
     get getAlive() {return this.alive;}
+    get getIsOwner() {return this.isOwner};
 }
