@@ -1,5 +1,6 @@
 module.exports = class Player { 
-    constructor(name, ownership) {
+    constructor(socket, name, ownership) {
+        this.socket = socket;
         this.name = name;
         this.alive = true;
         this.role;
@@ -8,7 +9,6 @@ module.exports = class Player {
 
     //setters
     set setRole(role) {this.role = role;}
-    set setName(name) {this.name = name;}
     set setAlive(status) {this.alive = status;}
 
     //getters

@@ -24,5 +24,4 @@ export function loadLobby(socket, roomid, whoami, curPlayers) {
 
     buildLeft(socket, curPlayers);
     buildRight(socket, whoami);
-
 }

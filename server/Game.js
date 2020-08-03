@@ -1,7 +1,9 @@
 const crypto = require("crypto");
 const Player = require('./Player');
 
-const gameRooms = []; // list of game rooms indexed by roomid
+// list of game rooms indexed by roomid
+const gameRooms = []; 
+const roles = [1,1,1,2,3,0,0,0];
 /** 
  * Game state class:
  * Maintain the state and logic of the game 
@@ -13,16 +15,15 @@ const gameRooms = []; // list of game rooms indexed by roomid
  * 1-mafia
  * 2-police
  * 3-witch
- * */ 
+ */ 
 module.exports = class Game { 
     players = [];  //List of players indexed by their socket.id 
     started = false;
     roomid = crypto.randomBytes(4).toString("hex");
-    roles = [1,1,1,2,3,0,0,0];
     numPlayers = 0;
     spectators = []; //List of spectators (joinning after game start, full room, players that died)
 
-    constructor(name, socket) {
+    constructor(socket, name) {
         //Check in case the same roomid already exists
         while(gameRooms[this.roomid] !== undefined) {
             this.roomid = crypto.randomBytes(4).toString('hex');
@@ -38,7 +39,7 @@ module.exports = class Game {
         });
         
         //Add player into the list of players
-        const player = new Player(name, true);
+        const player = new Player(socket, name, true);
         (this.players)[socket.id] = player;
         this.numPlayers++;
         console.log(this);
@@ -47,8 +48,12 @@ module.exports = class Game {
     /**
      * Static function for joinning game 
      * Since roomid is provided we can get an instance of the object 
+     * 
+     * @param {Object} socket - Client socket object
+     * @param {String} name   - Client name 
+     * @param {String} roomid - Room that the client is trying to join
      */
-    static joinGame(name, roomid, socket) {
+    static joinGame(socket, name, roomid) {
         const game = gameRooms[roomid];
         //Check if specified room exists
         if (game === undefined) { 
@@ -58,7 +63,7 @@ module.exports = class Game {
             
         } else {
             //Join as player
-            const player = new Player(name, false);      
+            const player = new Player(socket, name, false);      
             (game.players)[socket.id] = player;
             game.numPlayers++;
             socket.join(roomid, () => {
@@ -71,37 +76,45 @@ module.exports = class Game {
                     whoami:1, 
                     curPlayers: Object.values(game.players)
                 });
-                socket.to(roomid).emit("A New player joined", player);
+                socket.to(roomid).emit("A New player joined", {player: player});
             });
             console.log(game);
         }
     }
 
-    startGame(socket) {
-        console.log(socket.room);
-        //Check if the person that emitted "start game" is owner
-        if (this.players[socket.id].getIsOwner()) {
+    /**
+     * Start Game based on roomid
+     * 
+     * @param {Object} socket - Client socket object
+     * @param {String} roomid - Room that the client is trying to start  
+     */
+    static startGame(socket, roomid) {
+        const game = gameRooms[roomid];
+        //Check if the person that emitted "start game" is owner 
+        if (game === undefined || game.players[socket.id].getIsOwner() || game.started === true) { 
             //Disconnect malicious client
-            socket.disconnect(true);
-            return;
+            // call our own disconnect function 
+            //socket.disconnect(true); 
+        } else if (game.numPlayers !== 8) {
+            const msg = "Not enough players";
+            socket.emit("Start Game Status", {status:false, msg:msg});
+        } else {
+            game.started = true;
+            Object.values(game.players).forEach(assignRole);
+            socket.emit("Start Game Status", {status:true});
         }
-
-        for (player in this.players) {
-            assignRole(player);
-        }
-        this.started = true;
     }
 
     disconnect(socket) {
         
     }
 
-    //return game object based on a socket
-    static getGameBySocket(socket) {
-
-    }
-
-    //Add game object into list of game rooms
+    
+    /**
+     * Add game object into list of game rooms
+     * 
+     * @param {Object} game 
+     */
     static addGame(game) {
         gameRooms[game.roomid] = game;
         console.log(gameRooms);
@@ -113,6 +126,11 @@ function assignRole(player) {
     //choose a random number from the array
     const randRole = roles[Math.floor(Math.random() * roles.length)];
     player.setRole(randRole);
+
     //remove the already chosen role 
-    (this.roles).splice((this.roles).indexOf(randRole), 1);
+    roles.splice(roles.indexOf(randRole), 1);
+
+    //Tell player game has started 
+    const socket = player.getSocket();
+    socket.emit("Game started", {player: player});
 }

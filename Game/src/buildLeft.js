@@ -15,8 +15,27 @@ export function buildLeft(socket, curPlayers) {
     //Create all players in game
     curPlayers.forEach(createAvator);
     
-    //Create 
-    updateGame(socket,createAvator);
+    //Update the game as more clients join
+    updateGame(socket, updateAvator);
+}
+
+/**
+ * Update avator base on the event
+ * 
+ * @param {int} event   - Event received from server
+ * @param {Object} data - Data received from server 
+ */
+function updateAvator(event, data) {
+    switch(event) {
+        case 0: //A New player joined
+            const player = data;
+            createAvator(player);
+            break;
+        case 1: //Game Started
+            break;
+        case 2: //Flip
+            break;
+    }       
 }
 
 function createAvator(client) {

@@ -16,18 +16,18 @@ io.on("connection", (socket) => {
   
   // Listen to when a client creates a new room
   socket.on("Create Game", ({name}) => {
-    const game = new Game(name, socket);
+    const game = new Game(socket, name);
     Game.addGame(game);
   });
   
   // Listen to when a client wants to join a room
   socket.on("Join Game", ({name, roomid}) => {
-    Game.joinGame(name, roomid, socket);
+    Game.joinGame(socket, name, roomid);
   });
   
   // Listen to when the client wants to initiate a game
-  socket.on("Start Game", () => {
-    Game.startGame(socket);
+  socket.on("Start Game", ({roomid}) => {
+    Game.startGame(socket, roomid);
   });
 
   // Listen to when a client disconnect
