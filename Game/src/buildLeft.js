@@ -1,36 +1,43 @@
+import { updateGame } from "../ioController.js";
+
 /**
- * Create the left 
- * @param {String} clientname - Name of current client
- * @param {Object} socket     - Current client's socket 
- * @param {string} roomid     - Current Game roomid 
- * @param {int} whoami        - owner=0, players=1, spectator=2
- * @param {Array} curPlayers  - A list of current players' name
+ * Create the left side of the lobby
+ * @param {Array} curPlayers  - A list of current player objects
  */
-export function buildLeft(curPlayers) {
+export function buildLeft(socket, curPlayers) {
+    //Creates the left side div 
     const main = document.getElementById("lobby");
     const left = document.createElement("div");
     left.id = "players";
     left.style = "display: grid ; grid-template-columns:repeat(4,1fr); align-items: center; flex-grow: 8;";
     lobby.appendChild(left);
+
+    //Create all players in game
     curPlayers.forEach(createAvator);
     
     //Create 
-    socket.on
+    updateGame(socket,createAvator);
 }
 
-function createAvator(clientname) {
+function createAvator(client) {
+    //Create slots for each player
     const slot = document.createElement("div");
     slot.style = "text-align: center;";
+    
+    //Create player avator
     const avator = document.createElement("img");
     avator.src = "/assests/q.jpg";
     avator.width = "200";
     avator.height = "300";
     slot.appendChild(avator);
-
+    
+    //Create player name
     const name = document.createElement("p");
-    name.innerText = clientname;
+    name.innerText = client.name;
     name.style.color = "white";
     slot.appendChild(name);
-    
+ 
+    //Add to the leftside
+    const left = document.getElementById("players");
     left.appendChild(slot); 
 }

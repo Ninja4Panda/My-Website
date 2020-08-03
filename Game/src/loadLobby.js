@@ -3,13 +3,12 @@ import { buildRight } from "./buildRight.js"
 
 /**
  * Load the lobby based on who the player is
- * @param {String} clientname - Name of current client
  * @param {Object} socket     - Current client's socket 
  * @param {string} roomid     - Current Game roomid 
  * @param {int} whoami        - owner=0, players=1, spectator=2
- * @param {Array} curPlayers  - A list of current players' name
+ * @param {Array} curPlayers  - A list of current player objects
  */
-export function loadLobby(clientname, socket, roomid, whoami, curPlayers) {
+export function loadLobby(socket, roomid, whoami, curPlayers) {
     //Remove all sign-up html and show roomid
     document.getElementById("signup").remove();
     const roomLable = document.getElementById("roomid");
@@ -23,7 +22,7 @@ export function loadLobby(clientname, socket, roomid, whoami, curPlayers) {
     lobby.style = "display: flex; flex-direction: row; align-items: center; margin: 30px;";
     main.appendChild(lobby);
 
-    buildLeft(curPlayers);
-    buildRight();
+    buildLeft(socket, curPlayers);
+    buildRight(socket, whoami);
 
 }

@@ -1,4 +1,9 @@
-export function buildRight() {
+/**
+ * Build right side of lobbys
+ * @param {Object} socket - Current client's socket 
+ * @param {int} whoami    - owner=0, players=1, spectator=2
+ */
+export function buildRight(socket, whoami) {
     //Create right side the (contents)
     const right = document.createElement("div");
     right.id = "contents";

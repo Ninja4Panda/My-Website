@@ -30,7 +30,11 @@ module.exports = class Game {
 
         //Create room client and make client owner 
         socket.join(this.roomid, () => {
-            socket.emit("Create Game Status", {status:true, roomid:this.roomid});
+            socket.emit("Create Game Status", {
+                status:true, 
+                roomid:this.roomid, 
+                curPlayers: Object.values(this.players)
+            });
         });
         
         //Add player into the list of players
@@ -62,8 +66,12 @@ module.exports = class Game {
                 // owner=0, players=1, spectators=2
                 // curPlayers send a list of current players in the room 
                 console.log(Object.values(game.players));
-                socket.emit("Join Game Status", {status:true, whoami:1, curPlayers: Object.values(game.players)});
-                socket.to(roomid).emit("A New player joined", {name: name});
+                socket.emit("Join Game Status", {
+                    status:true, 
+                    whoami:1, 
+                    curPlayers: Object.values(game.players)
+                });
+                socket.to(roomid).emit("A New player joined", player);
             });
             console.log(game);
         }
