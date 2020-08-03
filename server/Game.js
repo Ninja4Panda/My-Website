@@ -25,24 +25,26 @@ module.exports = class Game {
 
     constructor(socket, name) {
         //Check in case the same roomid already exists
+        //TODO: spotted a bug where when roomid is a valid number create  
+        //it will create a lot of empty games in the gameRooms array
+        //hence need to check if roomid is a number
         while(gameRooms[this.roomid] !== undefined) {
             this.roomid = crypto.randomBytes(4).toString('hex');
         }
 
+        //Add player into the list of players
+        const player = new Player(name, true);
+        (this.players)[socket.id] = player;
+        this.numPlayers++;
+        console.log(Object.values(this.players))
         //Create room client and make client owner 
         socket.join(this.roomid, () => {
             socket.emit("Create Game Status", {
                 status:true, 
                 roomid:this.roomid, 
-                curPlayers: Object.values(this.players)
+                curPlayers:Object.values(this.players)
             });
         });
-        
-        //Add player into the list of players
-        const player = new Player(socket, name, true);
-        (this.players)[socket.id] = player;
-        this.numPlayers++;
-        console.log(this);
     }
     
     /**
@@ -63,9 +65,10 @@ module.exports = class Game {
             
         } else {
             //Join as player
-            const player = new Player(socket, name, false);      
+            const player = new Player(name, false);      
             (game.players)[socket.id] = player;
             game.numPlayers++;
+            console.log("hi")
             socket.join(roomid, () => {
                 // whoami defines the permission of client that joins the room 
                 // owner=0, players=1, spectators=2

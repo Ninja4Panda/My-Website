@@ -2,6 +2,7 @@ import { updateGame } from "../ioController.js";
 
 /**
  * Create the left side of the lobby
+ * 
  * @param {Array} curPlayers  - A list of current player objects
  */
 export function buildLeft(socket, curPlayers) {
@@ -13,7 +14,7 @@ export function buildLeft(socket, curPlayers) {
     lobby.appendChild(left);
 
     //Create all players in game
-    curPlayers.forEach(createAvator);
+    Object.values(curPlayers).forEach(createAvator);
     
     //Update the game as more clients join
     updateGame(socket, updateAvator);

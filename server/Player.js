@@ -1,6 +1,6 @@
 module.exports = class Player { 
-    constructor(socket, name, ownership) {
-        this.socket = socket;
+    constructor(name, ownership) {
+        // this.socket = socket;
         this.name = name;
         this.alive = true;
         this.role;

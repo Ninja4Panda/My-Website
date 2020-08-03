@@ -27,7 +27,10 @@ form.addEventListener("submit", (event) => {
     if (roomid === "") {
         //As of now Create Game always return true as status 
         createGame(socket, name, ({status, roomid, curPlayers}) => {
-            if(status) loadLobby(socket, roomid, 0, curPlayers);
+            if(status) {
+                loadLobby(socket, roomid, 0, curPlayers);
+                console.log(curPlayers)
+            }
         });
     } else {
         joinGame(socket, name, roomid, ({status, whoami, curPlayers}) => {
