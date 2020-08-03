@@ -14,7 +14,7 @@ export function buildLeft(socket, curPlayers) {
     lobby.appendChild(left);
 
     //Create all players in game
-    Object.values(curPlayers).forEach(createAvator);
+    curPlayers.forEach(createAvator);
     
     //Update the game as more clients join
     updateGame(socket, updateAvator);
@@ -29,10 +29,25 @@ export function buildLeft(socket, curPlayers) {
 function updateAvator(event, data) {
     switch(event) {
         case 0: //A New player joined
-            const player = data;
+            const {player} = data;
             createAvator(player);
             break;
         case 1: //Game Started
+            const {role} = data;
+            switch(role) {
+                case 0:
+                    alert("innocents");
+                    break;
+                case 1:
+                    alert("mafia");
+                    break;
+                case 2:
+                    alert("police");
+                    break;
+                case 3:
+                    alert("witch");
+                    break;
+            }
             break;
         case 2: //Flip
             break;

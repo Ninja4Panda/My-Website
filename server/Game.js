@@ -3,7 +3,6 @@ const Player = require('./Player');
 
 // list of game rooms indexed by roomid
 const gameRooms = []; 
-const roles = [1,1,1,2,3,0,0,0];
 /** 
  * Game state class:
  * Maintain the state and logic of the game 
@@ -22,6 +21,8 @@ module.exports = class Game {
     roomid = crypto.randomBytes(4).toString("hex");
     numPlayers = 0;
     spectators = []; //List of spectators (joinning after game start, full room, players that died)
+    socketsCache = []; //list of sockets in the room
+    roles = [1,1,1,2,3,0,0,0];
 
     constructor(socket, name) {
         //Check in case the same roomid already exists
@@ -36,8 +37,10 @@ module.exports = class Game {
         const player = new Player(name, true);
         (this.players)[socket.id] = player;
         this.numPlayers++;
-        console.log(Object.values(this.players))
-        //Create room client and make client owner 
+        
+        //cache the socket for later use
+        this.socketsCache[socket.id] = socket;
+        //Create room and make client owner 
         socket.join(this.roomid, () => {
             socket.emit("Create Game Status", {
                 status:true, 
@@ -68,17 +71,16 @@ module.exports = class Game {
             const player = new Player(name, false);      
             (game.players)[socket.id] = player;
             game.numPlayers++;
-            console.log("hi")
             socket.join(roomid, () => {
                 // whoami defines the permission of client that joins the room 
                 // owner=0, players=1, spectators=2
                 // curPlayers send a list of current players in the room 
-                console.log(Object.values(game.players));
                 socket.emit("Join Game Status", {
                     status:true, 
                     whoami:1, 
                     curPlayers: Object.values(game.players)
                 });
+                game.socketsCache[socket.id] = socket;
                 socket.to(roomid).emit("A New player joined", {player: player});
             });
             console.log(game);
@@ -94,16 +96,22 @@ module.exports = class Game {
     static startGame(socket, roomid) {
         const game = gameRooms[roomid];
         //Check if the person that emitted "start game" is owner 
-        if (game === undefined || game.players[socket.id].getIsOwner() || game.started === true) { 
+        if (game === undefined || !game.players[socket.id].getIsOwner || game.started === true) { 
             //Disconnect malicious client
             // call our own disconnect function 
             //socket.disconnect(true); 
         } else if (game.numPlayers !== 8) {
             const msg = "Not enough players";
+            const entries = Object.entries(game.players);
+            console.log("gameStarted")
+            for(const [socketid, player] of entries) {
+                assignRole(game.roles, player);
+                //Tell player game has started 
+                game.socketsCache[socketid].emit("Game Started", {role: player.getRole});
+            }
             socket.emit("Start Game Status", {status:false, msg:msg});
         } else {
             game.started = true;
-            Object.values(game.players).forEach(assignRole);
             socket.emit("Start Game Status", {status:true});
         }
     }
@@ -125,15 +133,11 @@ module.exports = class Game {
 }
 
 //Helper functions
-function assignRole(player) {
+function assignRole(roles, player) {
     //choose a random number from the array
     const randRole = roles[Math.floor(Math.random() * roles.length)];
-    player.setRole(randRole);
+    player.setRole = randRole;
 
     //remove the already chosen role 
     roles.splice(roles.indexOf(randRole), 1);
-
-    //Tell player game has started 
-    const socket = player.getSocket();
-    socket.emit("Game started", {player: player});
 }

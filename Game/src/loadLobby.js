@@ -23,5 +23,5 @@ export function loadLobby(socket, roomid, whoami, curPlayers) {
     main.appendChild(lobby);
 
     buildLeft(socket, curPlayers);
-    buildRight(socket, whoami);
+    buildRight(socket, roomid, whoami);
 }

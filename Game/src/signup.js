@@ -35,6 +35,7 @@ form.addEventListener("submit", (event) => {
     } else {
         joinGame(socket, name, roomid, ({status, whoami, curPlayers}) => {
             if(status) {
+                console.log(whoami)
                 loadLobby(socket, roomid, whoami, curPlayers);
             } else {
                 const error_msg = document.getElementById("error-msg");
