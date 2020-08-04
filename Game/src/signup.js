@@ -29,13 +29,11 @@ form.addEventListener("submit", (event) => {
         createGame(socket, name, ({status, roomid, curPlayers}) => {
             if(status) {
                 loadLobby(socket, roomid, 0, curPlayers);
-                console.log(curPlayers)
             }
         });
     } else {
         joinGame(socket, name, roomid, ({status, whoami, curPlayers}) => {
             if(status) {
-                console.log(whoami)
                 loadLobby(socket, roomid, whoami, curPlayers);
             } else {
                 const error_msg = document.getElementById("error-msg");

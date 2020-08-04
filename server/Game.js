@@ -34,9 +34,9 @@ module.exports = class Game {
         }
 
         //Add player into the list of players
-        const player = new Player(name, true);
-        (this.players)[socket.id] = player;
         this.numPlayers++;
+        const player = new Player(this.numPlayers, name, true);
+        (this.players)[socket.id] = player;
         
         //cache the socket for later use
         this.socketsCache[socket.id] = socket;
@@ -68,9 +68,9 @@ module.exports = class Game {
             
         } else {
             //Join as player
-            const player = new Player(name, false);      
-            (game.players)[socket.id] = player;
             game.numPlayers++;
+            const player = new Player(game.numPlayers, name, false);      
+            (game.players)[socket.id] = player;
             socket.join(roomid, () => {
                 // whoami defines the permission of client that joins the room 
                 // owner=0, players=1, spectators=2
@@ -101,17 +101,19 @@ module.exports = class Game {
             // call our own disconnect function 
             //socket.disconnect(true); 
         } else if (game.numPlayers !== 8) {
+            //Not enough player
             const msg = "Not enough players";
-            const entries = Object.entries(game.players);
-            console.log("gameStarted")
-            for(const [socketid, player] of entries) {
-                assignRole(game.roles, player);
-                //Tell player game has started 
-                game.socketsCache[socketid].emit("Game Started", {role: player.getRole});
-            }
             socket.emit("Start Game Status", {status:false, msg:msg});
         } else {
+            //Start the Game
             game.started = true;
+            //loop through all the players
+            const entries = Object.entries(game.players);
+            for(const [socketid, player] of entries) {
+                assignRole(game.roles, player);
+                //Tell player game has started & Flip their cards to show role
+                game.socketsCache[socketid].emit("Flip", {role: player.getRole, index: player.getIndex});
+            }
             socket.emit("Start Game Status", {status:true});
         }
     }

@@ -41,13 +41,9 @@ export function updateGame(socket, callback) {
     socket.on("A New player joined", (data) => {
         callback(0, data);
     });
-
-    socket.on("Game Started", (data) => {
-        callback(1, data);
-    });
     
     socket.on("Flip", (data) => {
-        callback(2, data);
+        callback(1, data);
     });
 }
 
