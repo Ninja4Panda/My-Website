@@ -1,6 +1,5 @@
 /**
  * Request server to create a game 
- * 
  * @param {Object} socket     - Client socket object
  * @param {String} name       - Name of client
  * @param {Function} callback - The function to call when data is returned
@@ -15,7 +14,6 @@ export function createGame(socket, name, callback) {
 
 /**
  * Request server to join a game
- * 
  * @param {Object} socket     - Client socket object
  * @param {String} name       - Name of client
  * @param {String} roomid     - Roomid that the client is trying to join
@@ -33,7 +31,6 @@ export function joinGame(socket, name, roomid, callback) {
 
 /**
  * Update game when new client joins a game
- * 
  * @param {Object} socket     - Client socket object
  * @param {Function} callback - The function to call when data is returned
  */
@@ -49,7 +46,6 @@ export function updateGame(socket, callback) {
 
 /**
  * Start game
- * 
  * @param {Object} socket     - Client socket object 
  * @param {String} roomid     - Roomid that the client is trying to start 
  * @param {Function} callback - The function to call when data is returned
@@ -57,6 +53,7 @@ export function updateGame(socket, callback) {
 export function startGame(socket, roomid, callback) {
     socket.emit("Start Game", {roomid:roomid});
     socket.on("Start Game Status", (data) => {
+        //BUG: This event doubles up on every call 
         callback(data);
     });
 }

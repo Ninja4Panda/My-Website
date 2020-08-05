@@ -3,7 +3,7 @@ import { updateGame } from "../ioController.js";
 let imgId = 1;
 /**
  * Create the left side of the lobby
- * 
+ * @param {Object} socket     - Client socket object
  * @param {Array} curPlayers  - A list of current player objects
  */
 export function buildLeft(socket, curPlayers) {
@@ -23,7 +23,6 @@ export function buildLeft(socket, curPlayers) {
 
 /**
  * Update avator base on the event
- * 
  * @param {int} event   - Event received from server
  * @param {Object} data - Data received from server 
  */
@@ -40,7 +39,11 @@ function updateAvator(event, data) {
     }       
 }
 
-function createAvator(client) {
+/**
+ * Create an avator for the player
+ * @param {Object} player - Player Object
+ */
+function createAvator(player) {
     //Create slots for each player
     const slot = document.createElement("div");
     slot.style = "text-align: center;";
@@ -56,7 +59,7 @@ function createAvator(client) {
     
     //Create player name
     const name = document.createElement("p");
-    name.innerText = client.name;
+    name.innerText = player.name;
     name.style.color = "white";
     slot.appendChild(name);
  
@@ -65,21 +68,26 @@ function createAvator(client) {
     left.appendChild(slot); 
 }
 
+/**
+ * Flip the card of a player based on the index 
+ * @param {int} role  - Role of the player 
+ * @param {int} index - Index of the player 
+ */
 function flipCard(role, index) {
     const img = document.getElementById("img-"+index);
     switch(role) {
         case 0: //innocents
             img.src = "/assests/innocent.png";
             break;
-        case 1:
+        case 1: //mafia
             alert("mafia");
             img.src = "/assests/mafia.png";
             break;
-        case 2:
+        case 2: //police
             alert("police");
             img.src = "/assests/police.png";
             break;
-        case 3:
+        case 3: //witch
             alert("witch");
             img.src = "/assests/witch.png"
             break;

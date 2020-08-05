@@ -25,13 +25,21 @@ export function buildRight(socket, roomid, whoami) {
         right.appendChild(start_btn);
         
         start_btn.addEventListener("click", () => {
-            console.log(roomid)
             startGame(socket, roomid, ({status, msg}) => {
+
                 if(status) {
-                    //TODO: startGame function
-                    //emits to all user in the room 
+                    // const = document.createElement();
+                    right.appendChild();
                 } else {
                     //failed and show msg
+                    if (document.getElementById("error") === null) {
+                        const alert = document.createElement("div");
+                        alert.innerText = msg;
+                        alert.className = "alert alert-danger";
+                        alert.id = "error";
+                        const main = document.getElementById("main");
+                        main.appendChild(alert);
+                    }
                 }
             });
         });

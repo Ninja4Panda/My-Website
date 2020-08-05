@@ -53,7 +53,6 @@ module.exports = class Game {
     /**
      * Static function for joinning game 
      * Since roomid is provided we can get an instance of the object 
-     * 
      * @param {Object} socket - Client socket object
      * @param {String} name   - Client name 
      * @param {String} roomid - Room that the client is trying to join
@@ -89,7 +88,6 @@ module.exports = class Game {
 
     /**
      * Start Game based on roomid
-     * 
      * @param {Object} socket - Client socket object
      * @param {String} roomid - Room that the client is trying to start  
      */
@@ -125,7 +123,6 @@ module.exports = class Game {
     
     /**
      * Add game object into list of game rooms
-     * 
      * @param {Object} game 
      */
     static addGame(game) {
