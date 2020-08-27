@@ -12,7 +12,7 @@ Implement webrtc to allow audio connection between clients
 - Because all clients need to talk to each other a mesh network is needed.
 - Using MCU can work but not possible for a personal project.
 
-- [x] Implement disconnection 
+- [ ] Implement disconnection 
 - A client disconnection doesn't reflect in current method of updating client avator 
 
 ### Known bugs
