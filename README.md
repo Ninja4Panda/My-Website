@@ -8,7 +8,7 @@ A Website that I created for portfolio using pure javascript and expresjs
 Recreating the classic Mafia game using socket-io 
 
 ### TODO
-Implement webrtc to allow audio connection between clients
+- [ ] Implement webrtc to allow audio connection between clients
 - Because all clients need to talk to each other a mesh network is needed.
 - Using MCU can work but not possible for a personal project.
 
