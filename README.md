@@ -1,10 +1,16 @@
 # My-Website
 A Website that I created for portfolio using pure javascript and expresjs
 
-## **Cook**
+## **Security Concerns**
+- [ ] Implement Content Security Policy(CSP)
 
+## **Main Page**
+Main page for the portfolio
 
-## **Game**
+## **Cook Page**
+Database of Mom's recipes
+
+## **Game Page**
 Recreating the classic Mafia game using socket-io 
 
 ### TODO
