@@ -4,7 +4,7 @@ const path = require("path");
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);//set options & use cors/csp
 
-const Game = require("./server/Game Objects/Game");
+const Game = require("./server/Game/Game");
 
 //Builds all public files for pages
 app.use(express.static(path.join(__dirname+"/Main")));
