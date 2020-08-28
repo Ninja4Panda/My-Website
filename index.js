@@ -7,7 +7,7 @@ const io = require("socket.io")(http);//set options & use cors/csp
 const Game = require("./server/Game");
 
 //Builds all public files for pages
-app.use(express.static(path.join(__dirname+"/public")));
+app.use(express.static(path.join(__dirname+"/Main")));
 app.use(express.static(path.join(__dirname+"/Game")));
 
 //On every client connection
