@@ -29,8 +29,8 @@ export function buildLeft(socket, curPlayers) {
 function updateAvator(event, data) {
     switch(event) {
         case 0: //A New player joined
-            const {player} = data;
-            createAvator(player);
+            const {name} = data;
+            createAvator(name);
             break;
         case 1: //Flip
             const {role, index} = data;
@@ -41,9 +41,9 @@ function updateAvator(event, data) {
 
 /**
  * Create an avator for the player
- * @param {Object} player - Player Object
+ * @param {String} player_name - Player name
  */
-function createAvator(player) {
+function createAvator(player_name) {
     //Create slots for each player
     const slot = document.createElement("div");
     slot.style = "text-align: center;";
@@ -59,7 +59,7 @@ function createAvator(player) {
     
     //Create player name
     const name = document.createElement("p");
-    name.innerText = player.name;
+    name.innerText = player_name;
     name.style.color = "white";
     slot.appendChild(name);
  

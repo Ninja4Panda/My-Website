@@ -25,7 +25,7 @@ export function buildRight(socket, roomid, whoami) {
         right.appendChild(start_btn);
         
         start_btn.addEventListener("click", () => {
-            startGame(socket, roomid, ({status, msg}) => {
+            startGame(socket, ({status, msg}) => {
 
                 if(status) {
                     // const = document.createElement();

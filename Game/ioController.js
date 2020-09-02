@@ -50,8 +50,8 @@ export function updateGame(socket, callback) {
  * @param {String} roomid     - Roomid that the client is trying to start 
  * @param {Function} callback - The function to call when data is returned
  */
-export function startGame(socket, roomid, callback) {
-    socket.emit("Start Game", {roomid:roomid});
+export function startGame(socket, callback) {
+    socket.emit("Start Game");
     socket.on("Start Game Status", (data) => {
         //BUG: This event doubles up on every call 
         callback(data);
