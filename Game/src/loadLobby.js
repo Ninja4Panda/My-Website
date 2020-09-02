@@ -6,9 +6,8 @@ import { buildRight } from "./buildRight.js"
  * @param {Object} socket     - Current client's socket 
  * @param {string} roomid     - Current Game roomid 
  * @param {int} whoami        - owner=0, players=1, spectator=2
- * @param {Array} curPlayers  - A list of current player objects
  */
-export function loadLobby(socket, roomid, whoami, curPlayers) {
+export function loadLobby(socket, roomid, whoami) {
     //Remove all sign-up html and show roomid
     document.getElementById("signup").remove();
     const roomLable = document.getElementById("roomid");
@@ -22,6 +21,6 @@ export function loadLobby(socket, roomid, whoami, curPlayers) {
     lobby.style = "display: flex; flex-direction: row; align-items: center; margin: 30px;";
     main.appendChild(lobby);
 
-    buildLeft(socket, curPlayers);
+    buildLeft(socket);
     buildRight(socket, roomid, whoami);
 }

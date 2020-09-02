@@ -7,7 +7,6 @@
 export function createGame(socket, name, callback) {
     socket.emit("Create Game", {name:name});
     socket.on("Create Game Status", (data) => {
-        console.log(data);
         callback(data);
     });
 }
