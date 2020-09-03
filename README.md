@@ -24,4 +24,3 @@ Recreating the classic Mafia game using socket-io
 ### Known bugs
 - Start Game status event doubles on every call (can't find out why yet)
 - If randomly generated roomid is a number it creates a lot of empty rooms in the rooms array 
-- Countdown clock should be stored in backend instead of frontend
