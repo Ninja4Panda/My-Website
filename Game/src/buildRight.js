@@ -3,10 +3,10 @@ import { startGame } from "../ioController.js";
 /**
  * Build right side of lobbys
  * @param {Object} socket - Current client's socket
- * @param {String} roomid - Current roomid client is in  
  * @param {int} whoami    - owner=0, players=1, spectator=2
+ * @param {int} clock     - Time left until all players gets kicked 
  */
-export function buildRight(socket, roomid, whoami) {
+export function buildRight(socket, whoami, clock) {
     //Create right side the (contents)
     const right = document.createElement("div");
     right.id = "contents";
@@ -14,7 +14,7 @@ export function buildRight(socket, roomid, whoami) {
     lobby.appendChild(right);
 
     //Create timer for lobby
-    createTimer(right);
+    createTimer(right, clock);
 
     //Create Start Game button if owner
     if (!whoami) {
@@ -51,23 +51,25 @@ export function buildRight(socket, roomid, whoami) {
 /**
  * Insert timer to parameter 
  * @param {Object} div - Insert timer to this div 
+ * @param {int} clock  - Time left until all players gets kicked
  */
-function createTimer(div) {
+function createTimer(div, clock) {
     //Create timer for lobby
     const timer = document.createElement("p");
     timer.style = "color: red;";
-    let timeleft = 600;
+    //TODO: time needs to be controlled by the server
+    let timeleft = clock;
     timer.innerText = timeleft +" seconds left until you all get kick HURRY!!!!";
     div.appendChild(timer);
 
     //Countdown
     const x = setInterval(() => {
-        if (timeleft <= 0) {
+        if (timeleft <= 1) {
             clearInterval(x);
-            //TODO: Disconnect all client and reload the webpage
+            //Reload the webpage
+            location.reload();
         }
         timeleft -= 1;
         timer.innerText = timeleft + " seconds left until you all get kick HURRY!!!!";
     }, 1000);
-
 }

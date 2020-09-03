@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const Player = require('./Player');
 const { lookup } = require("dns");
+const { disconnect } = require("process");
 
 // list of game rooms indexed by roomid
 const gameRooms = []; 
@@ -26,6 +27,7 @@ module.exports = class Game {
     roles = [1,1,1,2,3,0,0,0];
     uid = 0; //uid for frontend dom to identify each client 
     owner;//socket.id of owner
+    clock = 300;
 
     constructor(socket, name) {
         //Check in case the same roomid already exists
@@ -47,11 +49,23 @@ module.exports = class Game {
         socket.join(this.roomid, () => {
             socket.emit("Create Game Status", {
                 status:true, 
-                roomid:this.roomid
+                roomid:this.roomid,
+                clock:this.clock
             });
             //Add client into lobby
             socket.emit("A New player joined", {name: name, uid: player.getUid});
         });
+
+        const timer = setInterval(() => {
+            if (this.clock <= 1) {
+                clearInterval(timer);
+                //Disconnect all client
+                if (!this.started) {
+                    console.log("TODO: Disconnect all client");
+                }
+            }
+            this.clock -= 1;
+        }, 1000);
     }
     
     /**
@@ -82,18 +96,25 @@ module.exports = class Game {
                 // curPlayers send a list of current players in the room 
                 socket.emit("Join Game Status", {
                     status:true, 
-                    whoami:1
+                    whoami:1,
+                    clock:game.clock
                 });
 
                 //Send already existed clients 
                 for(let i = 0; i < game.players.length; i++) {
                     console.log(game.players[i].getName);
-                    socket.emit("A New player joined", {name: game.players[i].getName, uid: game.players[i].getUid});
+                    socket.emit("A New player joined", {
+                        name:game.players[i].getName, 
+                        uid:game.players[i].getUid
+                    });
                 }
 
                 //Update other client that a new client joined
                 game.socketsCache.push(socket);
-                socket.to(roomid).emit("A New player joined", {name: name, uid: player.getIndex});
+                socket.to(roomid).emit("A New player joined", {
+                    name:name, 
+                    uid:player.getIndex
+                });
             });
             console.log(game);
         }
@@ -111,7 +132,7 @@ module.exports = class Game {
                 //Disconnect malicious client
                 // call our own clean up function 
                 //socket.disconnect(true); 
-            } else if (game.totalPlayers !== 8) {
+            } else if (game.totalPlayers !== 3) { //TODO: change it back to 8
                 //Not enough player
                 const msg = "Not enough players";
                 socket.emit("Start Game Status", {status:false, msg:msg});

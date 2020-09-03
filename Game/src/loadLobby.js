@@ -6,8 +6,9 @@ import { buildRight } from "./buildRight.js"
  * @param {Object} socket     - Current client's socket 
  * @param {string} roomid     - Current Game roomid 
  * @param {int} whoami        - owner=0, players=1, spectator=2
+ * @param {int} clock         - Time left until all players gets kicked
  */
-export function loadLobby(socket, roomid, whoami) {
+export function loadLobby(socket, roomid, whoami, clock) {
     //Remove all sign-up html and show roomid
     document.getElementById("signup").remove();
     const roomLable = document.getElementById("roomid");
@@ -22,5 +23,5 @@ export function loadLobby(socket, roomid, whoami) {
     main.appendChild(lobby);
 
     buildLeft(socket);
-    buildRight(socket, roomid, whoami);
+    buildRight(socket, whoami, clock);
 }

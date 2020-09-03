@@ -29,7 +29,7 @@ export function joinGame(socket, name, roomid, callback) {
 }
 
 /**
- * Update game when new client joins a game
+ * Update game based on different event
  * @param {Object} socket     - Client socket object
  * @param {Function} callback - The function to call when data is returned
  */

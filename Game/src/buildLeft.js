@@ -78,7 +78,7 @@ function flipCard(role, uid) {
             img.src = "/assests/police.png";
             break;
         case 3: //witch
-            img.src = "/assests/witch.png"
+            img.src = "/assests/witch.png";
             break;
     }
 }

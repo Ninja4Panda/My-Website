@@ -26,15 +26,15 @@ form.addEventListener("submit", (event) => {
     //Check for empty roomid 
     if (roomid === "") {
         //As of now Create Game always return true as status 
-        createGame(socket, name, ({status, roomid}) => {
+        createGame(socket, name, ({status, roomid, clock}) => {
             if(status) {
-                loadLobby(socket, roomid, 0);
+                loadLobby(socket, roomid, 0, clock);
             }
         });
     } else {
-        joinGame(socket, name, roomid, ({status, whoami}) => {
+        joinGame(socket, name, roomid, ({status, whoami, clock}) => {
             if(status) {
-                loadLobby(socket, roomid, whoami);
+                loadLobby(socket, roomid, whoami, clock);
             } else {
                 const error_msg = document.getElementById("error-msg");
                 error_msg.style = "color: red; font-size: 20px;";
