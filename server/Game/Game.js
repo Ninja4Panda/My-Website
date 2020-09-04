@@ -140,7 +140,7 @@ module.exports = class Game {
                 //Disconnect malicious client
                 // call our own clean up function 
                 //socket.disconnect(true); 
-            } else if (game.totalPlayers !== 4) { //TODO: change it back to 8
+            } else if (game.totalPlayers !== 2) { //TODO: change it back to 8
                 //Not enough player
                 const msg = "Not enough players";
                 socket.emit("Start Game Status", {status:false, msg:msg});
@@ -152,11 +152,12 @@ module.exports = class Game {
                 for(let key in game.players) {
                     const player = game.players[key];
                     assignRole(game.roles, player);
+                    
                     //Tell player game has started & Flip their cards to show role
                     const target_socket = game.socketsCache[player.getUid];
                     target_socket.emit("Flip", {role: player.getRole, uid: player.getUid});
+                    target_socket.emit("Start Game Status", {status:true});
                 }
-                socket.emit("Start Game Status", {status:true});
             }
         } catch(err) {
             console.log(err);

@@ -28,16 +28,30 @@ export function buildRight(socket, whoami, clock) {
         start_btn.addEventListener("click", (event) => {
             event.preventDefault();
             socket.emit("Start Game");
-        });
-    
+        }); 
+
         socket.on("Start Game Status", ({status,msg}) => {
-            a(status,msg);
+            gameStarted(status,msg);
+            const game = document.getElementById("start-game");
+            game.remove();
+        });
+    } else { //players or spectator
+        socket.on("Start Game Status", ({status,msg}) => {
+            gameStarted(status,msg);
         });
     }
 }
 
-function a(status, msg) {
+/**
+ * Handle game starts
+ * @param {Boolean} status 
+ * @param {String} msg 
+ */
+function gameStarted(status, msg) {
     if(status) {
+        const timer = document.getElementById("timeout");
+        timer.remove();
+        //
         // const = document.createElement();
         right.appendChild();
     } else {
@@ -72,6 +86,7 @@ function createTimer(div, clock) {
     
     //Create timer for lobby
     const timer = document.createElement("p");
+    timer.id = "timeout"
     timer.style = "color: red;";
     timer.innerText = timeleft +" seconds left until you all get kick HURRY!!!!";
     div.appendChild(timer);
@@ -81,7 +96,8 @@ function createTimer(div, clock) {
         if (timeleft <= 1) {
             clearInterval(x);
             //Reload the webpage
-            location.reload();
+            const timer = document.getElementById("timeout");
+            if (timer != undefined) location.reload();
         }
         timeleft -= 1;
         timer.innerText = timeleft + " seconds left until you all get kick HURRY!!!!";
