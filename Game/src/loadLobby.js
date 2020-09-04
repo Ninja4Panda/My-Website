@@ -25,3 +25,19 @@ export function loadLobby(socket, roomid, whoami, clock) {
     buildLeft(socket);
     buildRight(socket, whoami, clock);
 }
+
+/**
+ * Do the callback function after sec amount of time
+ * @param {int} sec           - time in seconds
+ * @param {function} callback - function to callback
+ */
+export function doAfter(sec, callback) {
+    let time = sec;
+    const x = setInterval(() => {
+        if (time <= 1) {
+            clearInterval(x);
+            callback();
+        }
+        time -= 1;
+    }, 1000);
+}

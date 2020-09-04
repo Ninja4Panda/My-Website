@@ -22,4 +22,4 @@ Recreating the classic Mafia game using socket-io
 - A client disconnection doesn't reflect in current method of updating client avator. 
 
 ### Known bugs
-- Start Game status event doubles on every call (can't find out why yet)
+- Roomid & uid can be number sometimes which makes holes array 

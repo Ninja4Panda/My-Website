@@ -1,4 +1,5 @@
 import { startGame } from "../ioController.js";
+import { doAfter } from "../src/loadLobby.js";
 
 /**
  * Build right side of lobbys
@@ -24,27 +25,59 @@ export function buildRight(socket, whoami, clock) {
         start_btn.innerText = "Start Game"; 
         right.appendChild(start_btn);
         
-        start_btn.addEventListener("click", () => {
-            startGame(socket, ({status, msg}) => {
-
-                if(status) {
-                    // const = document.createElement();
-                    right.appendChild();
-                } else {
-                    //failed and show msg
-                    if (document.getElementById("error") === null) {
-                        const alert = document.createElement("div");
-                        alert.innerText = msg;
-                        alert.className = "alert alert-danger";
-                        alert.id = "error";
-                        const main = document.getElementById("main");
-                        main.appendChild(alert);
-                    }
-                }
-            });
+        start_btn.addEventListener("click", (event) => {
+            event.preventDefault();
+            socket.emit("Start Game");
         });
-    } else {
+    
+        socket.on("Start Game Status", ({status,msg}) => {
+            a(status,msg);
+        });
+    }
+}
 
+function a(status, msg) {
+    if(status) {
+        // const = document.createElement();
+        right.appendChild();
+    } else {
+        //failed and show msg
+        const start_btn = document.getElementById("start-game");
+        start_btn.disabled = "disabled";
+
+        const error = document.getElementById("error");
+        if (error === null) {
+            const alert = document.createElement("div");
+            alert.innerText = msg;
+            alert.className = "alert alert-danger";
+            alert.style = "text-align: center";
+            alert.id = "error";
+            const main = document.getElementById("main");
+            main.appendChild(alert);   
+
+            //remove the error msg after 5s
+            doAfter(5, ()=>{
+                const error = document.getElementById("error");
+                error.remove();
+                start_btn.disabled = "";
+            });
+        } else {        
+            //if error msg already exists remove it first
+            const alert = document.createElement("div");
+            alert.innerText = msg;
+            alert.className = "alert alert-danger";
+            alert.style = "text-align: center";
+            alert.id = "error";
+            const main = document.getElementById("main");
+            main.appendChild(alert);
+    
+            //remove the error msg after 5s
+            doAfter(5, ()=>{
+                const error = document.getElementById("error");
+                error.remove();
+                start_btn.disabled = "";
+            });
+        }
     }
 }
 

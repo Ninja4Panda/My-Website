@@ -105,6 +105,7 @@ module.exports = class Game {
                 // owner=0, players=1, spectators=2
                 socket.emit("Join Game Status", {
                     status:true, 
+                    roomid:game.roomid,
                     whoami:1,
                     clock:game.clock
                 });
@@ -155,11 +156,12 @@ module.exports = class Game {
                     const target_socket = game.socketsCache[player.getUid];
                     target_socket.emit("Flip", {role: player.getRole, uid: player.getUid});
                 }
-
                 socket.emit("Start Game Status", {status:true});
             }
         } catch(err) {
             console.log(err);
+            socket.emit("Forced Disconnect", {msg: "Unexpected error occurred"});
+            socket.disconnect();
         }
     }
 
@@ -180,7 +182,7 @@ module.exports = class Game {
                 //Disconnect all clients
                 for (let key in game.socketsCache) {
                     const client = game.socketsCache[key];
-                    client.emit("Forced Disconnect");
+                    client.emit("Forced Disconnect", {msg: "Game room was closed by owner"});
                     client.disconnect();
                 }
                 //Delete the game room from the room list

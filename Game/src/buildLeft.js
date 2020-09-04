@@ -1,4 +1,5 @@
 import { updateGame } from "../ioController.js";
+import { doAfter } from "../src/loadLobby.js";
 
 /**
  * Create the left side of the lobby
@@ -29,10 +30,10 @@ function updateAvator(event, data) {
             flipCard(data.role, data.uid);
             break;
         case 2: //A Client Disconnected
-            document.getElementById(data.uid).remove();
+            clientDis(data.uid);
             break;
         case 3: //Forced Disconnect
-            forcedDisconnect();
+            forcedDis(data.msg);
             break;
     }       
 }
@@ -90,15 +91,20 @@ function flipCard(role, uid) {
     }
 }
 
-function forcedDisconnect() {
+/**
+ * Handles when a client is forced disconnected.
+ * Display error msg & reload the page
+ * @param {String} msg 
+ */
+function forcedDis(msg) {
     let timeleft = 5;
     
     document.getElementById("lobby").remove();
     const main = document.getElementById("main");
     const error = document.createElement("h2");
     error.style = "color: red; text-align: center; margin: 60px";
-    error.innerText = "Game Room was closed, redirecting back to signup page in " + timeleft;
-    main.appendChild(timer);
+    error.innerText = msg + ", redirecting back to signup page in " + timeleft;
+    main.appendChild(error);
 
     const x = setInterval(() => {
         if (timeleft <= 1) {
@@ -107,6 +113,55 @@ function forcedDisconnect() {
             location.reload();
         }
         timeleft -= 1;
-        timer.innerText = "Game Room got closed, redirecting back to signup page in " + timeleft;
+        error.innerText = msg + ", redirecting back to signup page in " + timeleft;
     }, 1000);
 }
+
+/**
+ * Remove the client that was disconnected and let every other client knows that he/she is disconnected 
+ * @param {int} uid - uid of client
+ */
+function clientDis(uid) {
+    //Get the name of client then remove the element
+    const div = document.getElementById(uid);
+    const name = div.children[1].innerText;
+    div.remove();
+
+    //Display error msg
+    const error = document.getElementById("error");
+    if (error === null) {
+        //Construct the divs
+        const alert = document.createElement("div");
+        alert.innerText = name + " disconnected";
+        alert.className = "alert alert-danger";
+        alert.style = "text-align: center";
+        alert.id = "error";
+
+        const main = document.getElementById("main");
+        main.appendChild(alert);
+        
+        //remove the error msg after 5s
+        doAfter(5, ()=>{
+            const error = document.getElementById("error");
+            error.remove();
+        });
+    } else {
+        //if error msg already exists remove it first
+        error.remove();
+        const alert = document.createElement("div");
+        alert.innerText = name + " disconnected";
+        alert.className = "alert alert-danger";
+        alert.style = "text-align: center";
+        alert.id = "error";
+
+        const main = document.getElementById("main");
+        main.appendChild(alert);
+
+        //remove the error msg after 5s
+        doAfter(5, ()=>{
+            const error = document.getElementById("error");
+            error.remove();
+        });
+    }
+}
+

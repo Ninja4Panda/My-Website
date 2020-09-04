@@ -1,5 +1,4 @@
 import { loadLobby } from "./loadLobby.js";
-import { createGame, joinGame } from "../ioController.js";
 
 //Responsive button
 const room_input = document.getElementById("roomid-input");
@@ -12,9 +11,10 @@ const socket = io();
 const form = document.getElementById("signup-form"); 
 form.addEventListener("submit", (event) => {
     event.preventDefault();
+    
     const name = event.target['name-input'].value;
     const roomid = event.target['roomid-input'].value;
-
+    
     //Check for empty name
     if (name === "") { 
         const error_msg = document.getElementById("error-msg");
@@ -25,21 +25,26 @@ form.addEventListener("submit", (event) => {
     
     //Check for empty roomid 
     if (roomid === "") {
-        //As of now Create Game always return true as status 
-        createGame(socket, name, ({status, roomid, clock}) => {
-            if(status) {
-                loadLobby(socket, roomid, 0, clock);
-            }
-        });
+        socket.emit("Create Game", {name:name});
     } else {
-        joinGame(socket, name, roomid, ({status, whoami, clock}) => {
-            if(status) {
-                loadLobby(socket, roomid, whoami, clock);
-            } else {
-                const error_msg = document.getElementById("error-msg");
-                error_msg.style = "color: red; font-size: 20px;";
-                error_msg.innerText = "Room doesn't exits 🙈";
-            }
-        });
+        socket.emit("Join Game", {name:name, roomid:roomid});
+    }
+});
+
+//As of now Create Game always return true as status 
+socket.on("Create Game Status", ({status, roomid, clock}) => {
+    if(status) {
+        loadLobby(socket, roomid, 0, clock);
+    }
+});
+
+//Client trys to join game 
+socket.on("Join Game Status", ({status, roomid, whoami, clock}) => {
+    if(status) {
+        loadLobby(socket, roomid, whoami, clock);
+    } else {
+        const error_msg = document.getElementById("error-msg");
+        error_msg.style = "color: red; font-size: 20px;";
+        error_msg.innerText = "Room doesn't exits 🙈";
     }
 });
