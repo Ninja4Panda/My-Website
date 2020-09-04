@@ -6,7 +6,7 @@ import { updateGame } from "../ioController.js";
  */
 export function buildLeft(socket) {
     //Creates the left side div 
-    const main = document.getElementById("lobby");
+    const lobby = document.getElementById("lobby");
     const left = document.createElement("div");
     left.id = "players";
     left.style = "display: grid ; grid-template-columns:repeat(4,1fr); align-items: center; flex-grow: 8;";
@@ -22,11 +22,17 @@ export function buildLeft(socket) {
  */
 function updateAvator(event, data) {
     switch(event) {
-        case 0: //A New player joined
+        case 0: //A New Player Joined
             createAvator(data.name, data.uid);
             break;
         case 1: //Flip
             flipCard(data.role, data.uid);
+            break;
+        case 2: //A Client Disconnected
+            document.getElementById(data.uid).remove();
+            break;
+        case 3: //Forced Disconnect
+            forcedDisconnect();
             break;
     }       
 }
@@ -39,6 +45,7 @@ function updateAvator(event, data) {
 function createAvator(player_name, uid) {
     //Create slots for each player
     const slot = document.createElement("div");
+    slot.id = uid;
     slot.style = "text-align: center;";
     
     //Create player avator
@@ -81,4 +88,25 @@ function flipCard(role, uid) {
             img.src = "/assests/witch.png";
             break;
     }
+}
+
+function forcedDisconnect() {
+    let timeleft = 5;
+    
+    document.getElementById("lobby").remove();
+    const main = document.getElementById("main");
+    const error = document.createElement("h2");
+    error.style = "color: red; text-align: center; margin: 60px";
+    error.innerText = "Game Room was closed, redirecting back to signup page in " + timeleft;
+    main.appendChild(timer);
+
+    const x = setInterval(() => {
+        if (timeleft <= 1) {
+            clearInterval(x);
+            //Reload the webpage
+            location.reload();
+        }
+        timeleft -= 1;
+        timer.innerText = "Game Room got closed, redirecting back to signup page in " + timeleft;
+    }, 1000);
 }

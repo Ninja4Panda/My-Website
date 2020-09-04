@@ -19,8 +19,7 @@ Recreating the classic Mafia game using socket-io
 - Using MCU can work but not possible for a personal project.
 
 - [ ] Implement disconnection 
-- A client disconnection doesn't reflect in current method of updating client avator 
+- A client disconnection doesn't reflect in current method of updating client avator. 
 
 ### Known bugs
 - Start Game status event doubles on every call (can't find out why yet)
-- If randomly generated roomid is a number it creates a lot of empty rooms in the rooms array 

@@ -54,14 +54,14 @@ export function buildRight(socket, whoami, clock) {
  * @param {int} clock  - Time left until all players gets kicked
  */
 function createTimer(div, clock) {
+    let timeleft = clock;
+    
     //Create timer for lobby
     const timer = document.createElement("p");
     timer.style = "color: red;";
-    //TODO: time needs to be controlled by the server
-    let timeleft = clock;
     timer.innerText = timeleft +" seconds left until you all get kick HURRY!!!!";
     div.appendChild(timer);
-
+    
     //Countdown
     const x = setInterval(() => {
         if (timeleft <= 1) {

@@ -34,12 +34,20 @@ export function joinGame(socket, name, roomid, callback) {
  * @param {Function} callback - The function to call when data is returned
  */
 export function updateGame(socket, callback) {
-    socket.on("A New player joined", (data) => {
+    socket.on("A New Player Joined", (data) => {
         callback(0, data);
     });
     
     socket.on("Flip", (data) => {
         callback(1, data);
+    });
+
+    socket.on("A Client Disconnected", (data) => {
+        callback(2, data);
+    });
+    
+    socket.on("Forced Disconnect", () => {
+        callback(3);
     });
 }
 

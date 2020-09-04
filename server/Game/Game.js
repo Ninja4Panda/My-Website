@@ -1,7 +1,5 @@
 const crypto = require("crypto");
 const Player = require('./Player');
-const { lookup } = require("dns");
-const { disconnect } = require("process");
 
 // list of game rooms indexed by roomid
 const gameRooms = []; 
@@ -18,32 +16,37 @@ const gameRooms = [];
  * 3-witch
  */ 
 module.exports = class Game { 
-    players = [];  //List of player objects indexed by their uid 
+    players = [];  //List of player objects indexed by their socket.id 
     started = false;
     roomid = crypto.randomBytes(4).toString("hex");
     totalPlayers = 0; //total number of players
     spectators = []; //List of spectators (joinning after game start, full room, players that died)
-    socketsCache = []; //Array of socket objects in the room
+    socketsCache = []; //Array of socket objects in the room indexed by uid
     roles = [1,1,1,2,3,0,0,0];
-    uid = 0; //uid for frontend dom to identify each client 
+    uid = crypto.randomBytes(2).toString('hex'); //uid for frontend dom to identify each client 
     owner;//socket.id of owner
     clock = 300;
 
     constructor(socket, name) {
         //Check in case the same roomid already exists
         //Check in case randomly generated value is a number (which will create a lot of empty holes in the array)
-        while(gameRooms[this.roomid] !== undefined && !isNaN(this.roomid)) {
+        while(!isNaN(this.roomid) === 'number' || gameRooms[this.roomid] !== undefined) {
             this.roomid = crypto.randomBytes(4).toString('hex');
+        }
+
+        //Same checks for uid
+        while(!isNaN(this.uid)) {
+            this.uid = crypto.randomBytes(2).toString('hex');
         }
 
         //Add player into the list of players
         this.totalPlayers++;
         const player = new Player(this.uid, name);
-        this.uid++;
-        this.players.push(player);
-        
+        this.players[socket.id] = player;
+
         //cache the socket for later use
-        this.socketsCache.push(socket);
+        this.socketsCache[this.uid] = socket;
+
         //Create room and make client owner 
         this.owner = socket.id;
         socket.join(this.roomid, () => {
@@ -53,7 +56,7 @@ module.exports = class Game {
                 clock:this.clock
             });
             //Add client into lobby
-            socket.emit("A New player joined", {name: name, uid: player.getUid});
+            socket.emit("A New Player Joined", {name: name, uid: player.getUid});
         });
 
         const timer = setInterval(() => {
@@ -61,7 +64,7 @@ module.exports = class Game {
                 clearInterval(timer);
                 //Disconnect all client
                 if (!this.started) {
-                    console.log("TODO: Disconnect all client");
+                    socket.disconnect();
                 }
             }
             this.clock -= 1;
@@ -84,36 +87,40 @@ module.exports = class Game {
             //Join as spectator
             
         } else {
+            //Check if uid already exists
+            while(!isNaN(game.uid) || game.socketsCache[game.uid] !== undefined) {
+                game.uid = crypto.randomBytes(2).toString('hex');
+            }
+
             //Join as player
             game.totalPlayers++;
             const player = new Player(game.uid, name);      
-            game.uid++;
-            game.players.push(player);
+            game.players[socket.id] = player;
+
+            //cache the socket for later use
+            game.socketsCache[game.uid] = socket;
 
             socket.join(roomid, () => {
                 // whoami defines the permission of client that joins the room 
                 // owner=0, players=1, spectators=2
-                // curPlayers send a list of current players in the room 
                 socket.emit("Join Game Status", {
                     status:true, 
                     whoami:1,
                     clock:game.clock
                 });
 
-                //Send already existed clients 
-                for(let i = 0; i < game.players.length; i++) {
-                    console.log(game.players[i].getName);
-                    socket.emit("A New player joined", {
-                        name:game.players[i].getName, 
-                        uid:game.players[i].getUid
+                //Send to client that other clients that is already in the room 
+                for(let key in game.players) {
+                    socket.emit("A New Player Joined", {
+                        name:game.players[key].getName, 
+                        uid:game.players[key].getUid
                     });
                 }
 
-                //Update other client that a new client joined
-                game.socketsCache.push(socket);
-                socket.to(roomid).emit("A New player joined", {
+                //Update other clients that a new client joined
+                socket.to(roomid).emit("A New Player Joined", {
                     name:name, 
-                    uid:player.getIndex
+                    uid:player.getUid
                 });
             });
             console.log(game);
@@ -139,14 +146,16 @@ module.exports = class Game {
             } else {
                 //Start the Game
                 game.started = true;
+
                 //loop through all the players
-                for(let i = 0; i < game.players.length; i++) {
-                    const player = game.players[i];
+                for(let key in game.players) {
+                    const player = game.players[key];
                     assignRole(game.roles, player);
                     //Tell player game has started & Flip their cards to show role
-                    const target_socket = game.socketsCache[i];
+                    const target_socket = game.socketsCache[player.getUid];
                     target_socket.emit("Flip", {role: player.getRole, uid: player.getUid});
                 }
+
                 socket.emit("Start Game Status", {status:true});
             }
         } catch(err) {
@@ -161,9 +170,29 @@ module.exports = class Game {
     static disconnect(socket) {
         try {
             const game = findGame(socket);
-            console.log(game);
-
-        } catch(err) {
+            const disconnect_player = game.players[socket.id];
+            game.totalPlayers--;
+        
+            //Free the disconnected player from both the cache and the players list
+            delete game.socketsCache[disconnect_player.getUid]; 
+            delete game.players[socket.id];
+            if (socket.id === game.owner && game.started === false) {
+                //Disconnect all clients
+                for (let key in game.socketsCache) {
+                    const client = game.socketsCache[key];
+                    client.emit("Forced Disconnect");
+                    client.disconnect();
+                }
+                //Delete the game room from the room list
+                delete gameRooms[game.roomid];
+            } else {
+                //Tell every client in the room that a client is disconnected 
+                for (let key in game.socketsCache) {
+                    const client = game.socketsCache[key];
+                    client.emit("A Client Disconnected", {uid: disconnect_player.getUid});
+                }
+            }
+        } catch (err) {
             console.log(err)
         }
     }
@@ -191,6 +220,6 @@ function assignRole(roles, player) {
 function findGame(socket) {
     const rooms = Object.keys(socket.rooms);
     const roomid = rooms[1];
-    if (roomid === undefined) throw "roomid undefined";
+    if (gameRooms[roomid] === undefined) throw "roomid undefined";
     return gameRooms[roomid];
 }
