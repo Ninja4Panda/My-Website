@@ -45,39 +45,20 @@ function a(status, msg) {
         const start_btn = document.getElementById("start-game");
         start_btn.disabled = "disabled";
 
-        const error = document.getElementById("error");
-        if (error === null) {
-            const alert = document.createElement("div");
-            alert.innerText = msg;
-            alert.className = "alert alert-danger";
-            alert.style = "text-align: center";
-            alert.id = "error";
-            const main = document.getElementById("main");
-            main.appendChild(alert);   
+        const alert = document.createElement("div");
+        alert.innerText = msg;
+        alert.className = "alert alert-danger";
+        alert.style = "text-align: center";
+        alert.id = "error";
+        const main = document.getElementById("main");
+        main.appendChild(alert);   
 
-            //remove the error msg after 5s
-            doAfter(5, ()=>{
-                const error = document.getElementById("error");
-                error.remove();
-                start_btn.disabled = "";
-            });
-        } else {        
-            //if error msg already exists remove it first
-            const alert = document.createElement("div");
-            alert.innerText = msg;
-            alert.className = "alert alert-danger";
-            alert.style = "text-align: center";
-            alert.id = "error";
-            const main = document.getElementById("main");
-            main.appendChild(alert);
-    
-            //remove the error msg after 5s
-            doAfter(5, ()=>{
-                const error = document.getElementById("error");
-                error.remove();
-                start_btn.disabled = "";
-            });
-        }
+        //remove the error msg after 5s
+        doAfter(5, ()=>{
+            const error = document.getElementById("error");
+            error.remove();
+            start_btn.disabled = "";
+        });
     }
 }
 

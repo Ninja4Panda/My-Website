@@ -127,41 +127,20 @@ function clientDis(uid) {
     const name = div.children[1].innerText;
     div.remove();
 
-    //Display error msg
-    const error = document.getElementById("error");
-    if (error === null) {
-        //Construct the divs
-        const alert = document.createElement("div");
-        alert.innerText = name + " disconnected";
-        alert.className = "alert alert-danger";
-        alert.style = "text-align: center";
-        alert.id = "error";
+    //Construct the divs
+    const alert = document.createElement("div");
+    alert.innerText = name + " disconnected";
+    alert.className = "alert alert-danger";
+    alert.style = "text-align: center";
+    alert.id = "error";
 
-        const main = document.getElementById("main");
-        main.appendChild(alert);
-        
-        //remove the error msg after 5s
-        doAfter(5, ()=>{
-            const error = document.getElementById("error");
-            error.remove();
-        });
-    } else {
-        //if error msg already exists remove it first
+    const main = document.getElementById("main");
+    main.appendChild(alert);
+    
+    //remove the error msg after 5s
+    doAfter(5, ()=>{
+        const error = document.getElementById("error");
         error.remove();
-        const alert = document.createElement("div");
-        alert.innerText = name + " disconnected";
-        alert.className = "alert alert-danger";
-        alert.style = "text-align: center";
-        alert.id = "error";
-
-        const main = document.getElementById("main");
-        main.appendChild(alert);
-
-        //remove the error msg after 5s
-        doAfter(5, ()=>{
-            const error = document.getElementById("error");
-            error.remove();
-        });
-    }
+    });
 }
 

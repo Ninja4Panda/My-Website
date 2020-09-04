@@ -140,7 +140,7 @@ module.exports = class Game {
                 //Disconnect malicious client
                 // call our own clean up function 
                 //socket.disconnect(true); 
-            } else if (game.totalPlayers !== 3) { //TODO: change it back to 8
+            } else if (game.totalPlayers !== 4) { //TODO: change it back to 8
                 //Not enough player
                 const msg = "Not enough players";
                 socket.emit("Start Game Status", {status:false, msg:msg});
