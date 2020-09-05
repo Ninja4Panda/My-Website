@@ -62,13 +62,14 @@ module.exports = class Game {
             socket.emit("A New Player Joined", {name: name, uid: player.getUid});
         });
 
+        //Disconnect room owner when time is up
         const timer = setInterval(() => {
+            //clean up the clock if game started or no players left
+            if (this.started || this.totalPlayers === 0) clearInterval(timer);
             if (this.clock <= 1) {
                 clearInterval(timer);
                 //Disconnect all client
-                if (!this.started) {
-                    socket.disconnect();
-                }
+                socket.disconnect();
             }
             this.clock -= 1;
         }, 1000);
@@ -140,9 +141,8 @@ module.exports = class Game {
             const game = findGame(socket);
             //Check if the person that emitted "start game" is owner 
             if (!game.owner === socket.id || game.started === true) { 
-                //Disconnect malicious client
-                // call our own clean up function 
-                //socket.disconnect(true); 
+                //Disconnect malicious client 
+                socket.disconnect(true); 
             } else if (game.totalPlayers !== 1) { //TODO: change it back to 8
                 //Not enough player
                 const msg = "Not enough players";
@@ -151,33 +151,10 @@ module.exports = class Game {
                 //Start the Game
                 game.started = true;
 
-                //loop through all the players
-                for(let key in game.players) {
-                    const player = game.players[key];
-                    assignRole(game.roles, player);
-                    
-                    //Tell player game has started & Flip their cards to show role
-                    const target_socket = game.socketsCache[player.getUid];
-                    target_socket.emit("Start Game Status", {status:true});
-                    target_socket.emit("Show Role", {role: player.getRole, uid: player.getUid});
-
-                    //cache sockets with special role & tell player description 
-                    switch (player.getRole) {
-                        case 1:
-                            game.mafiaCache.push(target_socket);
-                            break;
-                        case 2:
-                            game.detective = target_socket;
-                            break;
-                        case 3:
-                            game.doctor = target_socket;
-                            break;
-                        default:
-                            break;
-                    }
-                    target_socket.emit("Role Description", {playerRole: player.getRole});
-                }
-                console.log(game)
+                // Send role to all clients in game
+                sendRole(game);
+                // startGameLogic(game);
+                console.log(game);
             }
         } catch(err) {
             console.log(err);
@@ -214,9 +191,12 @@ module.exports = class Game {
                     const client = game.socketsCache[key];
                     client.emit("A Client Disconnected", {uid: disconnect_player.getUid});
                 }
+                //if the disconnected client is the last client then delete the room
+                if (game.totalPlayers === 0) delete gameRooms[game.roomid];
             }
+            console.log(gameRooms);
         } catch (err) {
-            console.log(err)
+            console.log(err);
         }
     }
     
@@ -231,6 +211,11 @@ module.exports = class Game {
 }
 
 //Helper functions
+/**
+ * Assign role to player
+ * @param {int} roles - Array of Roles  
+ * @param {Object} player - Player to assign the role to  
+ */
 function assignRole(roles, player) {
     //choose a random number from the array
     const randRole = roles[Math.floor(Math.random() * roles.length)];
@@ -240,6 +225,44 @@ function assignRole(roles, player) {
     roles.splice(roles.indexOf(randRole), 1);
 }
 
+/**
+ * Loop through all the players and send the role to them
+ * @param {Object} game 
+ */
+function sendRole(game) {
+    //loop through all the players
+    for(let key in game.players) {
+        const player = game.players[key];
+        assignRole(game.roles, player);
+        
+        //Tell player game has started & Flip their cards to show role
+        const target_socket = game.socketsCache[player.getUid];
+        target_socket.emit("Start Game Status", {status:true});
+        target_socket.emit("Show Role", {role: player.getRole, uid: player.getUid});
+
+        //cache sockets with special role & tell player description 
+        switch (player.getRole) {
+            case 1:
+                game.mafiaCache.push(target_socket);
+                break;
+            case 2:
+                game.detective = target_socket;
+                break;
+            case 3:
+                game.doctor = target_socket;
+                break;
+            default:
+                break;
+        }
+        target_socket.emit("Role Description", {playerRole: player.getRole});
+    }
+}
+
+/**
+ * Find game client is in based on the socket
+ * @param {Object} socket - Client socket 
+ * @returns Game found or throws roomid undefined error
+ */
 function findGame(socket) {
     const rooms = Object.keys(socket.rooms);
     const roomid = rooms[1];

@@ -63,7 +63,7 @@ function startGame(socket, status, msg) {
         const alert = document.createElement("div");
         alert.innerText = msg;
         alert.className = "alert alert-danger";
-        alert.style = "winCon_text-align: center";
+        alert.style = "text-align: center";
         alert.id = "error";
         const main = document.getElementById("main");
         main.appendChild(alert);   
