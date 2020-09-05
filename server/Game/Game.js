@@ -12,8 +12,8 @@ const gameRooms = [];
  * 
  * 0-innocents 
  * 1-mafia
- * 2-police
- * 3-witch
+ * 2-detective
+ * 3-doctor
  */ 
 module.exports = class Game { 
     players = [];  //List of player objects indexed by their socket.id 
@@ -21,10 +21,13 @@ module.exports = class Game {
     roomid = crypto.randomBytes(4).toString("hex");
     totalPlayers = 0; //total number of players
     spectators = []; //List of spectators (joinning after game start, full room, players that died)
-    socketsCache = []; //Array of socket objects in the room indexed by uid
+    socketsCache = []; //Array of all socket objects in the room indexed by uid
     roles = [1,1,1,2,3,0,0,0];
     uid = crypto.randomBytes(2).toString('hex'); //uid for frontend dom to identify each client 
     owner;//socket.id of owner
+    mafiaCache = []; //Sockets of all mafias in game
+    detective; //socket of detective
+    doctor; //socket of doctor
     clock = 300;
 
     constructor(socket, name) {
@@ -140,7 +143,7 @@ module.exports = class Game {
                 //Disconnect malicious client
                 // call our own clean up function 
                 //socket.disconnect(true); 
-            } else if (game.totalPlayers !== 2) { //TODO: change it back to 8
+            } else if (game.totalPlayers !== 1) { //TODO: change it back to 8
                 //Not enough player
                 const msg = "Not enough players";
                 socket.emit("Start Game Status", {status:false, msg:msg});
@@ -155,9 +158,26 @@ module.exports = class Game {
                     
                     //Tell player game has started & Flip their cards to show role
                     const target_socket = game.socketsCache[player.getUid];
-                    target_socket.emit("Flip", {role: player.getRole, uid: player.getUid});
                     target_socket.emit("Start Game Status", {status:true});
+                    target_socket.emit("Show Role", {role: player.getRole, uid: player.getUid});
+
+                    //cache sockets with special role & tell player description 
+                    switch (player.getRole) {
+                        case 1:
+                            game.mafiaCache.push(target_socket);
+                            break;
+                        case 2:
+                            game.detective = target_socket;
+                            break;
+                        case 3:
+                            game.doctor = target_socket;
+                            break;
+                        default:
+                            break;
+                    }
+                    target_socket.emit("Role Description", {playerRole: player.getRole});
                 }
+                console.log(game)
             }
         } catch(err) {
             console.log(err);

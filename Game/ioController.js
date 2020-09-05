@@ -8,7 +8,7 @@ export function updateGame(socket, callback) {
         callback(0, data);
     });
     
-    socket.on("Flip", (data) => {
+    socket.on("Show Role", (data) => {
         callback(1, data);
     });
 

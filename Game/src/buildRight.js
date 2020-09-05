@@ -1,5 +1,5 @@
-import { startGame } from "../ioController.js";
 import { doAfter } from "../src/loadLobby.js";
+import { buildDescription } from "./buildDescription.js";
 
 /**
  * Build right side of lobbys
@@ -16,44 +16,45 @@ export function buildRight(socket, whoami, clock) {
 
     //Create timer for lobby
     createTimer(right, clock);
-
-    //Create Start Game button if owner
+    
     if (!whoami) {
+        //Create Start Game button if owner
         const start_btn = document.createElement("button");
         start_btn.id = "start-game";
         start_btn.className = "btn btn-primary";
         start_btn.innerText = "Start Game"; 
         right.appendChild(start_btn);
-        
+
         start_btn.addEventListener("click", (event) => {
             event.preventDefault();
             socket.emit("Start Game");
         }); 
 
+        //Listen to the server respond
         socket.on("Start Game Status", ({status,msg}) => {
-            gameStarted(status,msg);
-            const game = document.getElementById("start-game");
-            game.remove();
+            startGame(socket, status, msg);
+            if (status) start_btn.remove();
         });
     } else { //players or spectator
         socket.on("Start Game Status", ({status,msg}) => {
-            gameStarted(status,msg);
+            startGame(socket, status, msg);
         });
     }
 }
 
 /**
- * Handle game starts
+ * Handle when owner tries to start game starts
+ * @param {Object} socket
  * @param {Boolean} status 
  * @param {String} msg 
  */
-function gameStarted(status, msg) {
+function startGame(socket, status, msg) {
     if(status) {
         const timer = document.getElementById("timeout");
         timer.remove();
-        //
-        // const = document.createElement();
-        right.appendChild();
+
+        buildDescription(socket);
+        // buildChat(socket);
     } else {
         //failed and show msg
         const start_btn = document.getElementById("start-game");
@@ -62,15 +63,14 @@ function gameStarted(status, msg) {
         const alert = document.createElement("div");
         alert.innerText = msg;
         alert.className = "alert alert-danger";
-        alert.style = "text-align: center";
+        alert.style = "winCon_text-align: center";
         alert.id = "error";
         const main = document.getElementById("main");
         main.appendChild(alert);   
 
         //remove the error msg after 5s
         doAfter(5, ()=>{
-            const error = document.getElementById("error");
-            error.remove();
+            alert.remove();
             start_btn.disabled = "";
         });
     }
@@ -95,9 +95,9 @@ function createTimer(div, clock) {
     const x = setInterval(() => {
         if (timeleft <= 1) {
             clearInterval(x);
-            //Reload the webpage
-            const timer = document.getElementById("timeout");
-            if (timer != undefined) location.reload();
+            //Reload the webpage if timeout still exists
+            const timeout = document.getElementById("timeout");
+            if (timeout != undefined) location.reload();
         }
         timeleft -= 1;
         timer.innerText = timeleft + " seconds left until you all get kick HURRY!!!!";

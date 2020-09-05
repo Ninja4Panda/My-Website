@@ -26,7 +26,7 @@ function updateAvator(event, data) {
         case 0: //A New Player Joined
             createAvator(data.name, data.uid);
             break;
-        case 1: //Flip
+        case 1: //Show Role
             flipCard(data.role, data.uid);
             break;
         case 2: //A Client Disconnected
@@ -82,11 +82,11 @@ function flipCard(role, uid) {
         case 1: //mafia
             img.src = "/assests/mafia.png";
             break;
-        case 2: //police
-            img.src = "/assests/police.png";
+        case 2: //detective
+            img.src = "/assests/detective.png";
             break;
-        case 3: //witch
-            img.src = "/assests/witch.png";
+        case 3: //doctor
+            img.src = "/assests/doctor.png";
             break;
     }
 }
@@ -139,8 +139,7 @@ function clientDis(uid) {
     
     //remove the error msg after 5s
     doAfter(5, ()=>{
-        const error = document.getElementById("error");
-        error.remove();
+        alert.remove();
     });
 }
 
