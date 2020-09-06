@@ -52,7 +52,7 @@ function createAvator(player_name, uid) {
     //Create player avator
     const avator = document.createElement("img");
     avator.id = "img-" + uid;
-    avator.src = "/assests/q.jpg";
+    avator.src = "/assests/unknown.jpg";
     avator.width = "200";
     avator.height = "300";
     slot.appendChild(avator);
