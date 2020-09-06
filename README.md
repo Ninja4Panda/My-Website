@@ -13,6 +13,11 @@ Database of Mom's recipes
 ## **Game Page**
 Recreating the classic Mafia game using socket-io 
 
+### Design Tradeoffs
+Due to weak processing power of the server, a lot of workload are handled on frontend. 
+
+Server caches all sockets in a game for faster lookup even though they are all in a socket-io room.  
+
 ### TODO
 - [ ] Implement webrtc to allow audio connection between clients
 - Because all clients need to talk to each other a mesh network is needed.

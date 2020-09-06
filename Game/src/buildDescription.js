@@ -23,6 +23,12 @@ export function buildDescription(socket) {
         
         //Change colour of text based on their role
         switch (playerRole) {
+            case 0:
+                role_text.innerText = "Innocent";
+                role_text.style.color = "GreenYellow";
+                winCon_text.innerText = "Vote all mafia out";
+                winCon_text.style.color = "GreenYellow";
+                break;
             case 1:
                 role_text.innerText = "Mafia";
                 role_text.style.color = "pink";
@@ -42,10 +48,6 @@ export function buildDescription(socket) {
                 winCon_text.style.color = "GreenYellow";
                 break;
             default:
-                role_text.innerText = "Innocent";
-                role_text.style.color = "GreenYellow";
-                winCon_text.innerText = "Vote all mafia out";
-                winCon_text.style.color = "GreenYellow";
                 break;
         }
         const right = document.getElementById("contents");

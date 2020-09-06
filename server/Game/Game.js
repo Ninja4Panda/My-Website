@@ -1,5 +1,6 @@
 const crypto = require("crypto");
 const Player = require('./Player');
+const { startGameLogic } = require("./GameLogic");
 
 // list of game rooms indexed by roomid
 const gameRooms = []; 
@@ -16,24 +17,25 @@ const gameRooms = [];
  * 3-doctor
  */ 
 module.exports = class Game { 
+    server; //server io
     players = [];  //List of player objects indexed by their socket.id 
     started = false;
     roomid = crypto.randomBytes(4).toString("hex");
     totalPlayers = 0; //total number of players
-    spectators = []; //List of spectators (joinning after game start, full room, players that died)
+    dead = []; //Array of died roles
     socketsCache = []; //Array of all socket objects in the room indexed by uid
     roles = [1,1,1,2,3,0,0,0];
     uid = crypto.randomBytes(2).toString('hex'); //uid for frontend dom to identify each client 
     owner;//socket.id of owner
-    mafiaCache = []; //Sockets of all mafias in game
+    mafiaCache = []; //sockets of mafias
     detective; //socket of detective
     doctor; //socket of doctor
     clock = 300;
 
-    constructor(socket, name) {
+    constructor(io, socket, name) {
         //Check in case the same roomid already exists
         //Check in case randomly generated value is a number (which will create a lot of empty holes in the array)
-        while(!isNaN(this.roomid) === 'number' || gameRooms[this.roomid] !== undefined) {
+        while(!isNaN(this.roomid) || gameRooms[this.roomid] !== undefined) {
             this.roomid = crypto.randomBytes(4).toString('hex');
         }
 
@@ -41,6 +43,9 @@ module.exports = class Game {
         while(!isNaN(this.uid)) {
             this.uid = crypto.randomBytes(2).toString('hex');
         }
+
+        //Add server
+        this.server = io;
 
         //Add player into the list of players
         this.totalPlayers++;
@@ -114,7 +119,7 @@ module.exports = class Game {
                     clock:game.clock
                 });
 
-                //Send to client that other clients that is already in the room 
+                //Send other clients that is already in the room to new client 
                 for(let key in game.players) {
                     socket.emit("A New Player Joined", {
                         name:game.players[key].getName, 
@@ -143,7 +148,7 @@ module.exports = class Game {
             if (!game.owner === socket.id || game.started === true) { 
                 //Disconnect malicious client 
                 socket.disconnect(true); 
-            } else if (game.totalPlayers !== 1) { //TODO: change it back to 8
+            } else if (game.totalPlayers >= 8) { //TODO: change it back to 8
                 //Not enough player
                 const msg = "Not enough players";
                 socket.emit("Start Game Status", {status:false, msg:msg});
@@ -153,7 +158,7 @@ module.exports = class Game {
 
                 // Send role to all clients in game
                 sendRole(game);
-                // startGameLogic(game);
+                startGameLogic(game);
                 console.log(game);
             }
         } catch(err) {
@@ -243,6 +248,7 @@ function sendRole(game) {
         //cache sockets with special role & tell player description 
         switch (player.getRole) {
             case 1:
+                target_socket.join(game.roomid.concat("-m"));
                 game.mafiaCache.push(target_socket);
                 break;
             case 2:
@@ -266,6 +272,6 @@ function sendRole(game) {
 function findGame(socket) {
     const rooms = Object.keys(socket.rooms);
     const roomid = rooms[1];
-    if (gameRooms[roomid] === undefined) throw "roomid undefined";
+    if (gameRooms[roomid] === undefined) throw "Roomid undefined";
     return gameRooms[roomid];
 }

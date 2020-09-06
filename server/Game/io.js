@@ -10,7 +10,7 @@ module.exports = function(http) {
         
       // Listen to when a client creates a new room
       socket.on("Create Game", ({name}) => {
-        const game = new Game(socket, name);
+        const game = new Game(io, socket, name);
         Game.addGame(game);
       });
         
