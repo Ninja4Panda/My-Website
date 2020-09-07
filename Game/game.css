@@ -30,55 +30,40 @@
     background-color: rgb(83, 0, 161);
 }
 
-.fade-out {
-    animation: fadeOut ease 5s;
-    -webkit-animation: fadeOut ease 5s;
-    -moz-animation: fadeOut ease 5s;
-    -o-animation: fadeOut ease 5s;
-    -ms-animation: fadeOut ease 5s;
+/* ===== Chat Box ===== */
+.chat-container {
+	max-width: 1100px;
+	/* background: #fff; */
+	margin: 30px auto;
+	overflow: hidden;
 }
 
-@keyframes fadeOut {
-    0% {
-        opacity:1;
-    }
-    100% {
-        opacity:0;
-    }
+.chat-header {
+    color: white;
+    text-align: center;
+    font-weight: bold;
 }
 
-@-moz-keyframes fadeOut {
-    0% {
-        opacity:1;
-    }
-    100% {
-        opacity:0;
-    }
+.chat-messages {
+    padding: 30px;
+    min-width: 400px;
+    min-height: 300px;
+    max-width: 400px;
+	max-height: 300px;
+	overflow-y: scroll;
+}
+.chat-form-container {
+	padding: 20px 30px;
+	background-color: var(--dark-color-a);
 }
 
-@-webkit-keyframes fadeOut {
-    0% {
-        opacity:1;
-    }
-    100% {
-        opacity:0;
-    }
+.chat-form-container form {
+	display: flex;
 }
 
-@-o-keyframes fadeOut {
-    0% {
-        opacity:1;
-    }
-    100% {
-        opacity:0;
-    }
-}
-
-@-ms-keyframes fadeOut {
-    0% {
-        opacity:1;
-    }
-    100% {
-        opacity:0;
-    }
+.chat-form-container input[type='text'] {
+	font-size: 16px;
+	padding: 5px;
+	height: 40px;
+	flex: 1;
 }

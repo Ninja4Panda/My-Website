@@ -10,7 +10,7 @@ export function buildLeft(socket) {
     const lobby = document.getElementById("lobby");
     const left = document.createElement("div");
     left.id = "players";
-    left.style = "display: grid; grid-template-columns:repeat(4,1fr); align-items: center; flex-grow: 8;";
+    left.style = "display: grid; grid-template-columns:repeat(4,5fr); align-items: center; flex-grow: 8;";
     lobby.appendChild(left);
     //Update the game as state changes
     updateGame(socket, updateAvator);
