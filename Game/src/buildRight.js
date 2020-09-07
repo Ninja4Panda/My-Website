@@ -1,5 +1,6 @@
 import { doAfter } from "../src/loadLobby.js";
 import { buildDescription } from "./buildDescription.js";
+import { buildNote } from "./buildNote.js";
 
 /**
  * Build right side of lobbys
@@ -11,7 +12,7 @@ export function buildRight(socket, whoami, clock) {
     //Create right side the (contents)
     const right = document.createElement("div");
     right.id = "contents";
-    right.style = "display: flex; flex-flow: column wrap; align-items: center; flex-grow: 2";
+    right.style = "display: grid; align-items: center; flex-grow: 2";
     lobby.appendChild(right);
 
     //Create timer for lobby
@@ -54,6 +55,7 @@ function startGame(socket, status, msg) {
         timer.remove();
 
         buildDescription(socket);
+        buildNote();
         // buildChat(socket);
     } else {
         //failed and show msg

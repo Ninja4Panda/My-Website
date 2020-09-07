@@ -24,8 +24,8 @@ function mafiaTurn(game) {
     
     //Wake mafias up to vote on who to kill
     io.to(mafiaRoom).emit("Who To Kill");
-    let vote = 0;
     game.mafiaCache.foreach(socket => {
+        let vote = 0;
         socket.on("Vote", ({uid})=> {
             try {
                 const player = game.players[socket.id];
@@ -35,11 +35,14 @@ function mafiaTurn(game) {
                 const msg = player.getName.concat(" voted to kill ", victim.getName);
                 io.to(mafiaRoom).emit("System Message", {msg: msg});
                 
-                if (vote == 0) {
+                if(vote !== 0 && vote !== uid) {
+                    //no kill
+                    vote = 1;
+                } else {
+                    //kill
                     vote = uid;
-                } else if(vote !== uid) {
-                
-                }  
+                }
+                // kill();
 
             } catch(err) {
                 console.log(err);
