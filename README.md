@@ -1,5 +1,5 @@
 # My-Website
-A Website that I created for portfolio using pure javascript and expresjs
+A Website that I created using pure javascript and expresjs
 
 ## **Security Concerns**
 - [ ] Implement Content Security Policy(CSP)
@@ -24,7 +24,9 @@ Server caches all sockets in a game for faster lookup even though they are all i
 - Using MCU can work but not possible for a personal project.
 
 - [x] Implement disconnection 
-- ~~A client disconnection doesn't reflect in current method of updating client avator.~~
+
+- [ ] Change implementation of uid 
+- Changing the uid to be numbers instead of randomly generated value to allow easier communication
 
 ### Known bugs
 - Roomid & uid can be number sometimes which makes holes array 
