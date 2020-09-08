@@ -45,15 +45,14 @@
 }
 
 .chat-messages {
-    padding: 30px;
-    min-width: 400px;
-    min-height: 300px;
+    min-width: 400px; 
     max-width: 400px;
-	max-height: 300px;
+    min-height: 250px;
+	max-height: 250px;
 	overflow-y: scroll;
 }
 .chat-form-container {
-	padding: 20px 30px;
+	padding: 5px 0px;
 	background-color: var(--dark-color-a);
 }
 

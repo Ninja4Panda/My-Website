@@ -1,5 +1,4 @@
 import { updateGame } from "../ioController.js";
-import { doAfter } from "../src/loadLobby.js";
 
 /**
  * Create the left side of the lobby
@@ -34,6 +33,9 @@ function updateAvator(event, data) {
             break;
         case 3: //Forced Disconnect
             forcedDis(data.msg);
+            break;
+        case 4: //Please Vote
+            cickableAvator(data.timer);
             break;
     }       
 }
@@ -138,8 +140,8 @@ function clientDis(uid) {
     main.appendChild(alert);
     
     //remove the error msg after 5s
-    doAfter(5, ()=>{
+    setTimeout(()=>{
         alert.remove();
-    });
+    }, 5000);
 }
 

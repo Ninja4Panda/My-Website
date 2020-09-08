@@ -46,9 +46,13 @@ module.exports = class Game {
 
         //Add server
         this.server = io;
-
+        
         //Add player into the list of players
         this.totalPlayers++;
+        //Trim to get rid of the useless white spaces
+        name = name.trim();
+        //People that don't follow rules
+        if (name.length > 20 || name.length <= 0) name = "Smart Boi";
         const player = new Player(this.uid, name);
         this.players[socket.id] = player;
 
@@ -67,6 +71,11 @@ module.exports = class Game {
             socket.emit("A New Player Joined", {name: name, uid: player.getUid});
         });
 
+        //Listen to when the owner wants to initiate a game
+        socket.on("Start Game", () => {
+            this.startGame(socket);
+        });
+        
         //Disconnect room owner when time is up
         const timer = setInterval(() => {
             //clean up the clock if game started or no players left
@@ -74,7 +83,7 @@ module.exports = class Game {
             if (this.clock <= 1) {
                 clearInterval(timer);
                 //Disconnect all client
-                socket.disconnect();
+                this.disconnect(socket);
             }
             this.clock -= 1;
         }, 1000);
@@ -89,12 +98,17 @@ module.exports = class Game {
      */
     static joinGame(socket, name, roomid) {
         const game = gameRooms[roomid];
-        //Check if specified room exists
-        if (game === undefined) { 
-            socket.emit("Join Game Status", false);
-        } else if (game.started === true || game.totalPlayers === 8) {
-            //Join as spectator
-            
+        //Trim to get rid of the useless white spaces
+        name = name.trim();
+        //People that don't follow rules
+        if (name.length > 20 || name.length <= 0) name = "Smart Boi";
+
+        if (game === undefined) { //Check if specified room exists
+            socket.emit("Join Game Status", ({status: false, msg:"Room doesn't exits"}));
+        } else if (game.started === true) { //Check if game started already 
+            socket.emit("Join Game Status", ({status: false, msg:"Game already started"}));
+        } else if (game.totalPlayers === 8) { //Check if game is full
+            socket.emit("Join Game Status", ({status: false, msg:"Room is full"}));
         } else {
             //Check if uid already exists
             while(!isNaN(game.uid) || game.socketsCache[game.uid] !== undefined) {
@@ -114,6 +128,7 @@ module.exports = class Game {
                 // owner=0, players=1, spectators=2
                 socket.emit("Join Game Status", {
                     status:true, 
+                    msg:"Success",
                     roomid:game.roomid,
                     whoami:1,
                     clock:game.clock
@@ -141,30 +156,23 @@ module.exports = class Game {
      * Start Game based on roomid
      * @param {Object} socket - Client socket object
      */
-    static startGame(socket) {
-        try {
-            const game = findGame(socket);
-            //Check if the person that emitted "start game" is owner 
-            if (!game.owner === socket.id || game.started === true) { 
-                //Disconnect malicious client 
-                socket.disconnect(true); 
-            } else if (game.totalPlayers >= 8) { //TODO: change it back to 8
-                //Not enough player
-                const msg = "Not enough players";
-                socket.emit("Start Game Status", {status:false, msg:msg});
-            } else {
-                //Start the Game
-                game.started = true;
+    startGame(socket) {
+        //Check if the game is already started 
+        if (this.started === true) { 
+            //Disconnect malicious client 
+            this.disconnect(socket); 
+        } else if (this.totalPlayers >= 8) { //TODO: change it back to 8
+            //Not enough player
+            const msg = "Not enough players";
+            socket.emit("Start Game Status", {status:false, msg:msg});
+        } else {
+            //Start the Game
+            this.started = true;
 
-                // Send role to all clients in game
-                sendRole(game);
-                startGameLogic(game);
-                console.log(game);
-            }
-        } catch(err) {
-            console.log(err);
-            socket.emit("Forced Disconnect", {msg: "Unexpected error occurred"});
-            socket.disconnect();
+            // Send role to all clients in game
+            sendRole(this);
+            startGameLogic(this);
+            console.log(this);
         }
     }
 
@@ -172,39 +180,46 @@ module.exports = class Game {
      * Disconnet the client and clean up 
      * @param {Object} socket 
      */
-    static disconnect(socket) {
-        try {
-            const game = findGame(socket);
-            const disconnect_player = game.players[socket.id];
-            game.totalPlayers--;
-        
-            //Free the disconnected player from both the cache and the players list
-            delete game.socketsCache[disconnect_player.getUid]; 
-            delete game.players[socket.id];
-            if (socket.id === game.owner && game.started === false) {
-                //Disconnect all clients
-                for (let key in game.socketsCache) {
-                    const client = game.socketsCache[key];
-                    client.emit("Forced Disconnect", {msg: "Game room was closed by owner"});
-                    client.disconnect();
-                }
-                //Delete the game room from the room list
-                delete gameRooms[game.roomid];
-            } else {
-                //Tell every client in the room that a client is disconnected 
-                for (let key in game.socketsCache) {
-                    const client = game.socketsCache[key];
-                    client.emit("A Client Disconnected", {uid: disconnect_player.getUid});
-                }
-                //if the disconnected client is the last client then delete the room
-                if (game.totalPlayers === 0) delete gameRooms[game.roomid];
+    disconnect(socket) {
+        const disconnect_player = this.players[socket.id];
+        this.totalPlayers--;
+    
+        //Free the disconnected player from both the cache and the players list
+        delete this.socketsCache[disconnect_player.getUid]; 
+        delete this.players[socket.id];
+        if (socket.id === this.owner && this.started === false) {
+            //Disconnect all clients
+            for (let key in this.socketsCache) {
+                const client = this.socketsCache[key];
+                client.emit("Forced Disconnect", {msg: "Game room was closed by owner"});
+                client.disconnect();
             }
-            console.log(gameRooms);
-        } catch (err) {
-            console.log(err);
+            //Delete the game room from the room list
+            delete gameRooms[this.roomid];
+        } else {
+            //Tell every client in the room that a client is disconnected 
+            for (let key in this.socketsCache) {
+                const client = this.socketsCache[key];
+                client.emit("A Client Disconnected", {uid: disconnect_player.getUid});
+            }
+            //if the disconnected client is the last client then delete the room
+            if (this.totalPlayers === 0) delete gameRooms[this.roomid];
         }
+        console.log(gameRooms);
     }
     
+    /**
+     * Find game client is in based on the socket
+     * @param {Object} socket - Client socket 
+     * @returns Game found or throws roomid undefined error
+     */
+    static findGame(socket) {
+        const rooms = Object.keys(socket.rooms);
+        const roomid = rooms[1];
+        if (gameRooms[roomid] === undefined) throw "Roomid undefined";
+        return gameRooms[roomid];
+    }
+
     /**
      * Add game object into list of game rooms
      * @param {Object} game 
@@ -248,7 +263,7 @@ function sendRole(game) {
         //cache sockets with special role & tell player description 
         switch (player.getRole) {
             case 1:
-                target_socket.join(game.roomid.concat("-m"));
+                target_socket.join(game.roomid+"-m");
                 game.mafiaCache.push(target_socket);
                 break;
             case 2:
@@ -262,16 +277,4 @@ function sendRole(game) {
         }
         target_socket.emit("Role Description", {playerRole: player.getRole});
     }
-}
-
-/**
- * Find game client is in based on the socket
- * @param {Object} socket - Client socket 
- * @returns Game found or throws roomid undefined error
- */
-function findGame(socket) {
-    const rooms = Object.keys(socket.rooms);
-    const roomid = rooms[1];
-    if (gameRooms[roomid] === undefined) throw "Roomid undefined";
-    return gameRooms[roomid];
 }

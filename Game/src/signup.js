@@ -39,12 +39,12 @@ socket.on("Create Game Status", ({status, roomid, clock}) => {
 });
 
 //Client trys to join game 
-socket.on("Join Game Status", ({status, roomid, whoami, clock}) => {
+socket.on("Join Game Status", ({status, msg, roomid, whoami, clock}) => {
     if(status) {
         loadLobby(socket, roomid, whoami, clock);
     } else {
         const error_msg = document.getElementById("error-msg");
         error_msg.style = "color: red; font-size: 20px;";
-        error_msg.innerText = "Room doesn't exits 🙈";
+        error_msg.innerText = msg+" 🙈";
     }
 });

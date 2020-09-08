@@ -23,8 +23,8 @@ Server caches all sockets in a game for faster lookup even though they are all i
 - Because all clients need to talk to each other a mesh network is needed.
 - Using MCU can work but not possible for a personal project.
 
-- [ ] Implement disconnection 
-- A client disconnection doesn't reflect in current method of updating client avator. 
+- [x] Implement disconnection 
+- ~~A client disconnection doesn't reflect in current method of updating client avator.~~
 
 ### Known bugs
 - Roomid & uid can be number sometimes which makes holes array 

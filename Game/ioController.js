@@ -19,17 +19,8 @@ export function updateGame(socket, callback) {
     socket.on("Forced Disconnect", (data) => {
         callback(3, data);
     });
-}
 
-/**
- * Start game
- * @param {Object} socket     - Client socket object 
- * @param {String} roomid     - Roomid that the client is trying to start 
- * @param {Function} callback - The function to call when data is returned
- */
-export function startGame(socket, callback) {
-    socket.emit("Start Game");
-    socket.on("Start Game Status", (data) => {
-        callback(data);
-    });
+    socket.on("Please Vote", (data) => {
+        callback(4, data);
+    })
 }

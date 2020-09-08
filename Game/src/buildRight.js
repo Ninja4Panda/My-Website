@@ -1,4 +1,3 @@
-import { doAfter } from "../src/loadLobby.js";
 import { buildDescription } from "./buildDescription.js";
 import { buildNote } from "./buildNote.js";
 import { buildChat } from "./buildChat.js";
@@ -72,10 +71,10 @@ function startGame(socket, status, msg) {
         main.appendChild(alert);   
 
         //remove the error msg after 5s
-        doAfter(5, ()=>{
+        setTimeout(()=>{
             alert.remove();
             start_btn.disabled = "";
-        });
+        }, 5000);
     }
 }
 

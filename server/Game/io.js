@@ -19,14 +19,14 @@ module.exports = function(http) {
         Game.joinGame(socket, name, roomid);
       });
         
-      // Listen to when the client wants to initiate a game
-      socket.on("Start Game", () => {
-        Game.startGame(socket);
-      });
-    
       // Listen to when a client disconnects
       socket.on("disconnecting", () => {
-        Game.disconnect(socket);
+        try {
+          const game = Game.findGame(socket);
+          game.disconnect(socket);
+        } catch(err) {
+          console.log("A client disconnected without joining a game");
+        } 
         console.log("disconnecting:", socket.id);
       });
 
