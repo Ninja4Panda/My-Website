@@ -22,7 +22,7 @@ module.exports = class Game {
     started = false;
     roomid = crypto.randomBytes(4).toString("hex");
     totalPlayers = 0; //total number of players
-    dead = []; //Array of died roles
+    dead = []; //Array of dead 
     socketsCache = []; //Array of all socket objects in the room indexed by uid
     roles = [1,1,1,2,3,0,0,0];
     uid = crypto.randomBytes(2).toString('hex'); //uid for frontend dom to identify each client 
@@ -30,6 +30,7 @@ module.exports = class Game {
     mafiaCache = []; //sockets of mafias
     detective; //socket of detective
     doctor; //socket of doctor
+    votes = [];
     clock = 300;
 
     constructor(io, socket, name) {
@@ -79,8 +80,9 @@ module.exports = class Game {
         //Disconnect room owner when time is up
         const timer = setInterval(() => {
             //clean up the clock if game started or no players left
-            if (this.started || this.totalPlayers === 0) clearInterval(timer);
-            if (this.clock <= 1) {
+            if (this.started || this.totalPlayers === 0) {
+                clearInterval(timer);
+            } else if (this.clock <= 1) {
                 clearInterval(timer);
                 //Disconnect all client
                 this.disconnect(socket);
@@ -161,7 +163,7 @@ module.exports = class Game {
         if (this.started === true) { 
             //Disconnect malicious client 
             this.disconnect(socket); 
-        } else if (this.totalPlayers >= 8) { //TODO: change it back to 8
+        } else if (this.totalPlayers >= 8) { //TODO: change it back to equal 8
             //Not enough player
             const msg = "Not enough players";
             socket.emit("Start Game Status", {status:false, msg:msg});
@@ -171,8 +173,8 @@ module.exports = class Game {
 
             // Send role to all clients in game
             sendRole(this);
+            console.log(this.players);
             startGameLogic(this);
-            console.log(this);
         }
     }
 

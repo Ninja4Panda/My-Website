@@ -17,10 +17,11 @@ export function buildLeft(socket) {
 
 /**
  * Update avator base on the event
- * @param {int} event   - Event received from server
- * @param {Object} data - Data received from server 
+ * @param {int} event     - Event received from server
+ * @param {Object} socket - Client socket object
+ * @param {Object} data   - Data received from server 
  */
-function updateAvator(event, data) {
+function updateAvator(event, socket, data) {
     switch(event) {
         case 0: //A New Player Joined
             createAvator(data.name, data.uid);
@@ -35,7 +36,7 @@ function updateAvator(event, data) {
             forcedDis(data.msg);
             break;
         case 4: //Please Vote
-            cickableAvator(data.timer);
+            clickableAvator(data.timer, socket);
             break;
     }       
 }
@@ -145,3 +146,23 @@ function clientDis(uid) {
     }, 5000);
 }
 
+function clickableAvator(timer, socket) {
+    //create timer 
+    let timeleft = timer;
+    const main = document.getElementById("main")
+    const alert = document.createElement("h2");
+    alert.style = "color: red; text-align: center;";
+    alert.innerText = timeleft + "s left to discuss and vote";
+    main.appendChild(alert);
+
+    const x = setInterval(() => {
+        if (timeleft <= 1) {
+            clearInterval(x);
+        }
+        timeleft -= 1;
+        alert.innerText = timeleft + "s left to discuss and vote";
+    }, 1000);
+
+    //
+    socket.emit("Voted", ({uid: "NO ONE"}));
+}

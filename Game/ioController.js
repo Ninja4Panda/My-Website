@@ -5,22 +5,22 @@
  */
 export function updateGame(socket, callback) {
     socket.on("A New Player Joined", (data) => {
-        callback(0, data);
+        callback(0, socket, data);
     });
     
     socket.on("Show Role", (data) => {
-        callback(1, data);
+        callback(1, socket, data);
     });
 
     socket.on("A Client Disconnected", (data) => {
-        callback(2, data);
+        callback(2, socket, data);
     });
     
     socket.on("Forced Disconnect", (data) => {
-        callback(3, data);
+        callback(3, socket, data);
     });
 
     socket.on("Please Vote", (data) => {
-        callback(4, data);
+        callback(4, socket, data);
     })
 }
