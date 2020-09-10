@@ -147,22 +147,47 @@ function clientDis(uid) {
 }
 
 function clickableAvator(timer, socket) {
-    //create timer 
+    const main = document.getElementById("main");
+    
+    //Main div to hold the skipp button and timer
+    const div = document.createElement("div");
+    main.appendChild(div);
+    
+    //Create timer 
     let timeleft = timer;
-    const main = document.getElementById("main")
     const alert = document.createElement("h2");
     alert.style = "color: red; text-align: center;";
     alert.innerText = timeleft + "s left to discuss and vote";
-    main.appendChild(alert);
-
+    div.appendChild(alert);
+    
+    //Create skip button
+    const skip = document.createElement("button");
+    skip.innerText = "Skip";
+    skip.style= "color: grey; algin-item: center";
+    div.appendChild(skip);
+    
+    //Remove div when time is over
     const x = setInterval(() => {
         if (timeleft <= 1) {
             clearInterval(x);
+            div.remove();
+            //Time is up and mafia voted for no one 
+            socket.emit("Voted", ({uid: "No one"}));
         }
         timeleft -= 1;
         alert.innerText = timeleft + "s left to discuss and vote";
     }, 1000);
 
-    //
-    socket.emit("Voted", ({uid: "NO ONE"}));
+    //End timer  
+    socket.on("End Timer", ()=> {
+        div.remove();
+        clearInterval(x);
+    });
+
+    //Add click event to the button
+    skip.addEventListener("click", (event) => {
+        event.preventDefault();
+        socket.emit("Voted", ({uid: "No one"}));
+    });
+
 }

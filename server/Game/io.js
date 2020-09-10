@@ -25,6 +25,7 @@ module.exports = function(http) {
           const game = Game.findGame(socket);
           game.disconnect(socket);
         } catch(err) {
+          console.log(err)
           console.log("A client disconnected without joining a game");
         } 
         console.log("disconnecting:", socket.id);

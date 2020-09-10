@@ -29,7 +29,7 @@ module.exports = class Game {
     owner;//socket.id of owner
     mafiaCache = []; //sockets of mafias
     detective; //socket of detective
-    doctor; //socket of doctor
+    doctor = []; //doctor[0]:socket, doctor[1]:revive, doctor[2]:posion
     votes = [];
     clock = 300;
 
@@ -163,17 +163,16 @@ module.exports = class Game {
         if (this.started === true) { 
             //Disconnect malicious client 
             this.disconnect(socket); 
-        } else if (this.totalPlayers >= 8) { //TODO: change it back to equal 8
+        } else if (this.totalPlayers < 8) {
             //Not enough player
             const msg = "Not enough players";
             socket.emit("Start Game Status", {status:false, msg:msg});
         } else {
             //Start the Game
             this.started = true;
-
             // Send role to all clients in game
             sendRole(this);
-            console.log(this.players);
+            //Start doing game logic
             startGameLogic(this);
         }
     }
@@ -185,7 +184,6 @@ module.exports = class Game {
     disconnect(socket) {
         const disconnect_player = this.players[socket.id];
         this.totalPlayers--;
-    
         //Free the disconnected player from both the cache and the players list
         delete this.socketsCache[disconnect_player.getUid]; 
         delete this.players[socket.id];
@@ -199,15 +197,27 @@ module.exports = class Game {
             //Delete the game room from the room list
             delete gameRooms[this.roomid];
         } else {
-            //Tell every client in the room that a client is disconnected 
-            for (let key in this.socketsCache) {
-                const client = this.socketsCache[key];
-                client.emit("A Client Disconnected", {uid: disconnect_player.getUid});
+            //If the disconnected client is the last client then delete the room
+            if (this.totalPlayers === 0) {
+                delete gameRooms[this.roomid];
+            } else {
+                if (this.started) {
+                    //If the client disconnected is a detective
+                    if(this.detective !== null && this.detective.id === socket.id) {
+                         this.detective = null;
+                    } else if(this.doctor !== null && this.doctor[0].id === socket.id) {
+                        this.doctor = null;
+                    }
+                }
+                
+                //Tell every client in the room that a client is disconnected 
+                for (let key in this.socketsCache) {
+                    const client = this.socketsCache[key];
+                    client.emit("A Client Disconnected", {uid: disconnect_player.getUid});
+                }
             }
-            //if the disconnected client is the last client then delete the room
-            if (this.totalPlayers === 0) delete gameRooms[this.roomid];
         }
-        console.log(gameRooms);
+        // console.log(gameRooms);
     }
     
     /**
@@ -218,7 +228,7 @@ module.exports = class Game {
     static findGame(socket) {
         const rooms = Object.keys(socket.rooms);
         const roomid = rooms[1];
-        if (gameRooms[roomid] === undefined) throw "Roomid undefined";
+        if (gameRooms[roomid] === undefined) throw new ReferenceError("Roomid undefined");
         return gameRooms[roomid];
     }
 
@@ -272,7 +282,9 @@ function sendRole(game) {
                 game.detective = target_socket;
                 break;
             case 3:
-                game.doctor = target_socket;
+                game.doctor.push(target_socket);
+                game.doctor.push(1);
+                game.doctor.push(1);
                 break;
             default:
                 break;
