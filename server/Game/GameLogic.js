@@ -19,6 +19,12 @@ function startGameLogic(game) {
                 break;
             case 2://Prompt mafia to wake up
                 io.to(game.roomid).emit("System Message", {msg: "Mafia please wake up"});
+                //Flip the mafia so they know each other
+                for(let x = 0; x < game.mafiaCache.length; x++) {
+                    const socket = game.mafiaCache[x];
+                    const player = game.players[socket.id];
+                    io.to(game.roomid+"-m").emit("Show Role", {role: player.getRole, uid:player.getUid}); 
+                }
                 break;
             case 4://Mafia turn 
                 mafiaTurn(game);
@@ -41,13 +47,15 @@ function startGameLogic(game) {
             case 104://Doctor turn
                 doctorTurn(game);
                 break;
+            case 166://Prompt doctor to sleep 
+                io.to(game.roomid).emit("System Message", {msg: "Doctor please go to sleep"});
+                break;
             
         }
         game.clock++;
     }, 1000); 
 
         
-        // io.to(game.roomid).emit("System Message", {msg: "Doctor please go to sleep"});
         
         // //Everyone wake up
         // await sleep(3);
@@ -79,7 +87,8 @@ function mafiaTurn(game) {
     //send only to mafias
     for(let i = 0; i < game.mafiaCache.length; i++) { 
         const socket = game.mafiaCache[i];
-        const player = game.players[socket.id]; 
+        const player = game.players[socket.id];
+        
         //System message
         socket.emit("System Message", {msg: "All mafias must agree on the same person otherwise no one will be killed\nClick on the player to vote when you are ready\nMafias can dicuss who to kill in here, other players will not be able to see your messages"});
 
@@ -156,7 +165,11 @@ function detectiveTurn(game) {
             if (uid !== "No one") {
                 const target = findPlayer(game, uid);
                 detective.emit("Flip", {role: target.getRole, uid: uid});
+            } else {
+                detective.emit("System Message", {msg:"I like your confidence, good luck young man"});
             }
+            detective.removeAllListeners("Voted");
+            doctor.emit("End Timer");
         } catch(err) {//Forced disconnect client when they provide undefined uid as this shouldn't happen
             console.log(err);
             detective.emit("Forced Disconnect", {msg: "Unexpected error occurred"});
@@ -170,36 +183,82 @@ function detectiveTurn(game) {
  * @param {Object} game - Game Object 
  */
 function doctorTurn(game) {
+    //Doctor is dead or disconnected already
+    if (game.doctor === null) return;
+    
     const doctor = game.doctor[0];
     const revive = game.doctor[1];
     const posion = game.doctor[2];
-
-    //Doctor is dead or disconnected already
-    if (doctor === null) return;
     
     //Revive potion 
-    if (revive === 1) {
+    if (revive) {
         const victim = game.votes[0];
+        //No one died
         if (victim === undefined) {
             doctor.emit("System Message", {msg:"No one died tonight\n"});
+            posionLogic(game, doctor);
         } else {
-            doctor.emit("System Message", {msg:victim.getName+" died tonight\n"});
+            //Doctor can't save himself
+            if(doctor.id === victim.id) { 
+                doctor.emit("Revive Potion", {msg:"You died tonight\nUnfortuentely you cannot save yourself.", timer:30});
+                doctor.on("Save", ()=>{
+                    posionLogic(game, doctor);
+                });
+            } else {
+                doctor.emit("Revive Potion", {msg:victim.getName+" died tonight\n", timer:30});
+                doctor.on("Save", ({save})=>{
+                    if (save) {
+                        doctor.emit("System Message", {msg:"You decided to save "+ victim.getName});
+                        game.doctor[1] = 0;
+                        game.clock = 165;
+                    } else {
+                        //Posion still exist & didn't used revive potion this turn 
+                        if(posion) {
+                            posionLogic(game, doctor);
+                        } else {
+                            doctor.emit("System Message", {msg:"You already used the posion\nSkipping your turn"});
+                            game.clock = 160;
+                        }
+                    }
+                });
+            }
         }
-        // if () //Doctor can't save himself
-        doctor.emit("Save", ({timer: 30}));
-    } 
-
-    //Posion 
-    if (doctor[2] === 1 && revive === doctor[1]) {
-        doctor.emit("System Message", {msg:"Please click on the player you would like to posion"});
-        doctor.emit("Please Vote", ({timer: 30}));
-        doctor.on("Voted", ()=> {
-
-        });
+    } else if(posion) { //Only have a posion left
+        posionLogic(game, doctor);
+    } else { //Nothing to use
+        doctor.emit("System Message", {msg:"You have used everything\nSkipping your turn"});
+        game.clock = 160;
     }
-    doctor.emit("System Message", {msg:"You have used everything, you can skip to make the game faster"});
 }
 
+/**
+ * Posion logic
+ * @param {Object} game   - Game Object
+ * @param {Object} doctor - Doctor socket 
+ */
+function posionLogic(game, doctor) {
+    doctor.emit("System Message", {msg:"Please click on the player you would like to posion"});
+    doctor.emit("Please Vote", ({timer: 30}));
+    doctor.on("Voted", ({uid}) => {
+        if (uid === "No one") {
+            doctor.emit("System Message", {msg:"You posioned no one"});
+        } else {
+            game.doctor[2] = 0;
+            try {
+                const victim = findPlayer(game, uid);
+                game.votes.push(victim);
+                doctor.emit("System Message", {msg:"You posioned "+victim.getName});
+            } catch (err) {//Forced disconnect client when they provide undefined uid as this shouldn't happen
+                console.log(err);
+                detective.emit("Forced Disconnect", {msg: "Unexpected error occurred"});
+                detective.disconnect();
+            }
+        }
+        doctor.removeAllListeners("Voted");
+        doctor.emit("End Timer");
+        game.clock = 165;
+    });
+}
 
 /**
  * Find player by uid
@@ -240,15 +299,5 @@ function endChat(game) {
         const socket = game.socketsCache[key];
         socket.removeAllListeners("Client Message");
     }
-}
-
-/**
- * Sleep for that many seconds
- * @param {int} sec 
- */
-function sleep(sec) {
-    sec = sec *1000;
-    return new Promise(resolve => setTimeout(resolve, sec));
-}
-  
+} 
 exports.startGameLogic = startGameLogic;

@@ -23,4 +23,8 @@ export function updateGame(socket, callback) {
     socket.on("Please Vote", (data) => {
         callback(4, socket, data);
     })
+
+    socket.on("Revive Potion", (data) => {
+        callback(5, socket, data)
+    })
 }

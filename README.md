@@ -33,7 +33,7 @@ Server caches all sockets in a game for faster lookup even though they are all i
 - [ ] Implement spectator 
 - Players that already died should be able to see what is going on 
 
-- [ ] Implement doctor logic
+- [x] Implement doctor logic *12/09/2020*
 - Doctor finds out the potenially dead person in game.votes when he still has a revive potion
 
 ### Known bugs

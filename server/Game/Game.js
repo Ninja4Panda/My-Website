@@ -30,7 +30,7 @@ module.exports = class Game {
     mafiaCache = []; //sockets of mafias
     detective; //socket of detective
     doctor = []; //doctor[0]:socket, doctor[1]:revive, doctor[2]:posion
-    votes = [];
+    votes = []; //sockets that got voted
     clock = 300;
 
     constructor(io, socket, name) {
