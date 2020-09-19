@@ -4,6 +4,10 @@ const { startGameLogic } = require("./GameLogic");
 
 // list of game rooms indexed by roomid
 const gameRooms = []; 
+const INNOCENT = 0;
+const MAFIA = 1;
+const DETECTIVE = 2;
+const DOCTOR = 3;
 /** 
  * Game state class:
  * Maintain the state and logic of the game 
@@ -24,7 +28,7 @@ module.exports = class Game {
     totalPlayers = 0; //total number of players
     dead = []; //Array of dead 
     socketsCache = []; //Array of all socket objects in the room indexed by uid
-    roles = [1,1,1,2,3,0,0,0];
+    roles = [MAFIA,MAFIA,MAFIA,DETECTIVE,DOCTOR,INNOCENT,INNOCENT,INNOCENT];
     uid = crypto.randomBytes(2).toString('hex'); //uid for frontend dom to identify each client 
     owner;//socket.id of owner
     mafiaCache = []; //sockets of mafias
@@ -55,9 +59,9 @@ module.exports = class Game {
         //People that don't follow rules
         if (name.length > 20 || name.length <= 0) name = "Smart Boi";
         const player = new Player(this.uid, name);
+        
+        //cache the socket & player for later use
         this.players[socket.id] = player;
-
-        //cache the socket for later use
         this.socketsCache[this.uid] = socket;
 
         //Create room and make client owner 
@@ -70,6 +74,11 @@ module.exports = class Game {
             });
             //Add client into lobby
             socket.emit("A New Player Joined", {name: name, uid: player.getUid});
+            
+            //Turn on the chat  
+            socket.to(this.roomid).on("Client Message", ({msg}) => {
+                io.to(this.roomid).emit("New Message", ({name: player.getName, msg:msg}));
+            });
         });
 
         //Listen to when the owner wants to initiate a game
@@ -149,8 +158,13 @@ module.exports = class Game {
                     name:name, 
                     uid:player.getUid
                 });
+
+                //Turn on the chat
+                socket.to(roomid).on("Client Message", ({msg}) => {
+                    game.server.to(roomid).emit("New Message", ({name: player.getName, msg:msg}));
+                });
             });
-            console.log(game);
+            // console.log(game);
         }
     }
 
@@ -159,11 +173,12 @@ module.exports = class Game {
      * @param {Object} socket - Client socket object
      */
     startGame(socket) {
+        console.log(socket.id+" trys to start game");
         //Check if the game is already started 
         if (this.started === true) { 
             //Disconnect malicious client 
             this.disconnect(socket); 
-        } else if (this.totalPlayers < 8) {
+        } else if (this.totalPlayers !== 6) {
             //Not enough player
             const msg = "Not enough players";
             socket.emit("Start Game Status", {status:false, msg:msg});
@@ -184,16 +199,13 @@ module.exports = class Game {
     disconnect(socket) {
         const disconnect_player = this.players[socket.id];
         this.totalPlayers--;
-        //Free the disconnected player from both the cache and the players list
+        //Remove the disconnected player from both the cache and the players list
         delete this.socketsCache[disconnect_player.getUid]; 
         delete this.players[socket.id];
+
         if (socket.id === this.owner && this.started === false) {
-            //Disconnect all clients
-            for (let key in this.socketsCache) {
-                const client = this.socketsCache[key];
-                client.emit("Forced Disconnect", {msg: "Game room was closed by owner"});
-                client.disconnect();
-            }
+            //Disconnect all clients when game hasn't started yet
+            this.server.to(this.roomid).emit("Forced Disconnect", {msg: "Game room was closed by owner"});            
             //Delete the game room from the room list
             delete gameRooms[this.roomid];
         } else {
@@ -203,18 +215,15 @@ module.exports = class Game {
             } else {
                 if (this.started) {
                     //If the client disconnected is a detective
-                    if(this.detective !== null && this.detective.id === socket.id) {
+                    if(disconnect_player.getRole == DETECTIVE) {
                          this.detective = null;
-                    } else if(this.doctor !== null && this.doctor[0].id === socket.id) {
+                    } else if(disconnect_player.getRole == DOCTOR) {
                         this.doctor = null;
                     }
                 }
                 
                 //Tell every client in the room that a client is disconnected 
-                for (let key in this.socketsCache) {
-                    const client = this.socketsCache[key];
-                    client.emit("A Client Disconnected", {uid: disconnect_player.getUid});
-                }
+                this.server.to(this.roomid).emit("A Client Disconnected", {uid: disconnect_player.getUid});
             }
         }
         // console.log(gameRooms);
@@ -238,7 +247,7 @@ module.exports = class Game {
      */
     static addGame(game) {
         gameRooms[game.roomid] = game;
-        console.log(gameRooms);
+        // console.log(gameRooms);
     }
 }
 
@@ -266,22 +275,24 @@ function sendRole(game) {
     for(let key in game.players) {
         const player = game.players[key];
         assignRole(game.roles, player);
-        
         //Tell player game has started & Flip their cards to show role
         const target_socket = game.socketsCache[player.getUid];
-        target_socket.emit("Start Game Status", {status:true});
+        target_socket.emit("Start Game Status", {status:true, msg:"Game started"});
         target_socket.emit("Show Role", {role: player.getRole, uid: player.getUid});
-
+        target_socket.emit("Role Description", {playerRole: player.getRole});
+        
         //cache sockets with special role & tell player description 
         switch (player.getRole) {
-            case 1:
+            case INNOCENT:
+                break;
+            case MAFIA:
                 target_socket.join(game.roomid+"-m");
                 game.mafiaCache.push(target_socket);
                 break;
-            case 2:
+            case DETECTIVE:
                 game.detective = target_socket;
                 break;
-            case 3:
+            case DOCTOR:
                 game.doctor.push(target_socket);
                 game.doctor.push(1);
                 game.doctor.push(1);
@@ -289,6 +300,5 @@ function sendRole(game) {
             default:
                 break;
         }
-        target_socket.emit("Role Description", {playerRole: player.getRole});
     }
 }

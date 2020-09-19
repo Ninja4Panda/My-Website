@@ -28,48 +28,18 @@ function updateAvator(event, socket, data) {
             createAvator(data.name, data.uid);
             break;
         case 1: //Show Role
-            console.log("HEHEHE")
             flipAvator(data.role, data.uid);
             break;
         case 2: //A Client Disconnected
             clientDis(data.uid);
             break;
-        case 3: //Forced Disconnect
-            forcedDis(data.msg);
-            break;
-        case 4: //Please Vote
+        case 3: //Please Vote
             clickableAvator(data.timer, socket);
             break;
-        case 5: //Revive Potion
+        case 4: //Revive Potion
             createModal(data.msg, data.timer);
             break;
     }       
-}
-
-/**
- * Handles when a client is forced disconnected.
- * Display error msg & reload the page
- * @param {String} msg 
- */
-function forcedDis(msg) {
-    let timeleft = 5;
-    
-    document.getElementById("lobby").remove();
-    const main = document.getElementById("main");
-    const error = document.createElement("h2");
-    error.style = "color: red; text-align: center; margin: 60px";
-    error.innerText = msg + ", redirecting back to signup page in " + timeleft;
-    main.appendChild(error);
-
-    const x = setInterval(()=>{
-        if (timeleft <= 1) {
-            clearInterval(x);
-            //Reload the webpage
-            location.reload();
-        }
-        timeleft -= 1;
-        error.innerText = msg + ", redirecting back to signup page in " + timeleft;
-    }, 1000);
 }
 
 /**

@@ -47,7 +47,17 @@ function createChat(socket) {
     input.placeholder = "Enter Message";
     input.autocomplete = "off";
     input.required = "on";
+    
+    //Toggle the message on & off
+    socket.on("Toggle Message", ()=> {
+        if(input.disabled) {
+            input.disabled = false;
+        } else {
+            input.disabled = true;
+        }
+    });
 
+    //Submit a Client message event to the server when client sends a message
     form.addEventListener("submit", (event)=>{
         event.preventDefault();
         socket.emit("Client Message", {msg: event.target.msg.value});

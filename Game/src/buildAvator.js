@@ -97,6 +97,7 @@ export function clickableAvator(timer, socket) {
     //Add click event to the button
     skip.addEventListener("click", (event) => {
         event.preventDefault();
+        skip.remove();
         socket.emit("Voted", ({uid: "No one"}));
     });
 }
