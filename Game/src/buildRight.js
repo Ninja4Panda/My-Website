@@ -26,17 +26,20 @@ export function buildRight(socket, whoami, clock) {
         start_btn.className = "btn btn-primary";
         start_btn.innerText = "Start Game"; 
         right.appendChild(start_btn);
-
+        
         start_btn.addEventListener("click", (event) => {
             event.preventDefault();
+            console.log(socket)
             socket.emit("Start Game");
         }); 
-
+        
         //Listen to the server respond
         socket.on("Start Game Status", ({status,msg}) => {
             startGame(socket, status, msg);
         });
-    } else { //players or spectator
+
+    } else { 
+        //status is always true for non room owner 
         socket.on("Start Game Status", ({status,msg}) => {
             const timer = document.getElementById("timeout");
             timer.remove();
@@ -61,7 +64,6 @@ function startGame(socket, status, msg) {
 
         buildDescription(socket);
         buildNote();
-        // buildChat(socket);
     } else {
         //failed and show msg
         const start_btn = document.getElementById("start-game");

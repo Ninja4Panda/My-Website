@@ -50,21 +50,16 @@ function startGameLogic(game) {
             case 166://Prompt doctor to sleep 
                 io.to(game.roomid).emit("System Message", {msg: "Doctor please go to sleep"});
                 break;
-            
+            case 168://Everyone wakes up sleep
+                io.to(game.roomid).emit("System Message", {msg: "Everyone please wake up"});
+                break;
+            case 170://Summary of what happened
+                summary(game);
+                startChat(game);
+                break;
         }
         game.clock++;
     }, 1000); 
-
-        
-        
-        // //Everyone wake up
-        // await sleep(3);
-        // io.to(game.roomid).emit("System Message", {msg: "Everyone wake up"});
-        // startChat(game);
-        // // await sleep(15);
-
-    
-    //send game over
 }
 
 /**
@@ -93,7 +88,7 @@ function mafiaTurn(game) {
         socket.emit("System Message", {msg: "All mafias must agree on the same person otherwise no one will be killed\nClick on the player to vote when you are ready\nMafias can dicuss who to kill in here, other players will not be able to see your messages"});
 
         //Start mafias chat  
-        socket.emit("Start Message");
+        socket.emit("Toggle Message");
         socket.on("Client Message", ({msg}) => {
             io.to(mafiaRoom).emit("New Message", ({name: player.getName, msg:msg}));
         });
@@ -129,17 +124,18 @@ function mafiaTurn(game) {
                     //Tell frontend to end the timer
                     io.to(mafiaRoom).emit("End Timer");
                     game.clock = 63;
+
                 } else if(Object.keys(game.votes).length === game.mafiaCache.length) {//Everyone voted different player
                     delete game.votes[uid]; //no one will be killed
                     //Tell frontend to end the timer
                     io.to(mafiaRoom).emit("End Timer");
                     game.clock = 63;
                 }
-
-                //Stop the communation again
+                                
+                //Stop the communation
+                socket.emit("Toggle Message");
                 socket.removeAllListeners("Voted");
                 socket.removeAllListeners("Client Message");
-                
             } catch(err) {//Forced disconnect client when they provide undefined uid
                 console.log(err);
                 socket.emit("Forced Disconnect", {msg: "Unexpected error occurred"});
@@ -277,7 +273,7 @@ function findPlayer(game, uid) {
  * @param {Object} game - Game object 
  */
 function startChat(game) {
-    game.server.to(game.roomid).emit("Start Message");
+    game.server.to(game.roomid).emit("Toggle Message");
 
     for (let key in game.socketsCache) {
         const socket = game.socketsCache[key];
@@ -293,7 +289,7 @@ function startChat(game) {
  * @param {Object} game - Game object 
  */
 function endChat(game) {
-    game.server.to(game.roomid).emit("Stop Message");
+    game.server.to(game.roomid).emit("Toggle Message");
 
     for (let key in game.socketsCache) {
         const socket = game.socketsCache[key];
@@ -301,3 +297,4 @@ function endChat(game) {
     }
 } 
 exports.startGameLogic = startGameLogic;
+exports.startChat = startChat;

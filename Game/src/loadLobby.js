@@ -21,6 +21,11 @@ export function loadLobby(socket, roomid, whoami, clock) {
     lobby.id = "lobby";
     lobby.style = "display: flex; flex-direction: row; align-items: center; margin: 30px;";
     main.appendChild(lobby);
+        
+    //Start listening to forced disconnection
+    socket.on("Forced Disconnect", ({msg}) => {
+        forcedDis(msg);
+    });
 
     socket.on("Forced Disconnect", ({msg}) => {
         forcedDis(msg)

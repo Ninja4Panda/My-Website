@@ -4,7 +4,7 @@ module.exports = function(http) {
         cookie: false
     }); //set options & use cors/csp
     const Game = require("./Game");
-
+    
     io.on("connection", (socket) => {
       console.log("a user connected", socket.id);
         
@@ -18,7 +18,7 @@ module.exports = function(http) {
       socket.on("Join Game", ({name, roomid}) => {
         Game.joinGame(socket, name, roomid);
       });
-        
+
       // Listen to when a client disconnects
       socket.on("disconnecting", () => {
         try {
