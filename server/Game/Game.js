@@ -31,7 +31,7 @@ module.exports = class Game {
     roles = [MAFIA,MAFIA,MAFIA,DETECTIVE,DOCTOR,INNOCENT,INNOCENT,INNOCENT];
     uid = crypto.randomBytes(2).toString('hex'); //uid for frontend dom to identify each client 
     owner;//socket.id of owner
-    mafiaCache = []; //sockets of mafias
+    mafiaCache = []; //sockets of mafias indexed by uid
     detective; //socket of detective
     doctor = []; //doctor[0]:socket, doctor[1]:revive, doctor[2]:posion
     votes = []; //sockets that got voted
@@ -178,7 +178,7 @@ module.exports = class Game {
         if (this.started === true) { 
             //Disconnect malicious client 
             this.disconnect(socket); 
-        } else if (this.totalPlayers >8 ) {//!== 8) {
+        } else if (this.totalPlayers !== 8) {
             //Not enough player
             const msg = "Not enough players";
             socket.emit("Start Game Status", {status:false, msg:msg});
@@ -214,11 +214,13 @@ module.exports = class Game {
                 delete gameRooms[this.roomid];
             } else {
                 if (this.started) {
-                    //If the client disconnected is a detective
+                    //If the client disconnected with a special role
                     if(disconnect_player.getRole == DETECTIVE) {
                          this.detective = null;
                     } else if(disconnect_player.getRole == DOCTOR) {
                         this.doctor = null;
+                    } else if (disconnect_player.getRole == MAFIA) {
+                        delete this.mafiaCache[disconnect_player.getUid];
                     }
                 }
                 
@@ -287,7 +289,7 @@ function sendRole(game) {
                 break;
             case MAFIA:
                 target_socket.join(game.roomid+"-m");
-                game.mafiaCache.push(target_socket);
+                game.mafiaCache[player.getUid] = target_socket;
                 break;
             case DETECTIVE:
                 game.detective = target_socket;
