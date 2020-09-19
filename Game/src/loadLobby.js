@@ -26,10 +26,6 @@ export function loadLobby(socket, roomid, whoami, clock) {
     socket.on("Forced Disconnect", ({msg}) => {
         forcedDis(msg);
     });
-
-    socket.on("Forced Disconnect", ({msg}) => {
-        forcedDis(msg)
-    });
     
     buildLeft(socket);
     buildRight(socket, whoami, clock);

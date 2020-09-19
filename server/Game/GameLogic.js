@@ -297,4 +297,3 @@ function endChat(game) {
     }
 } 
 exports.startGameLogic = startGameLogic;
-exports.startChat = startChat;

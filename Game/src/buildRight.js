@@ -29,7 +29,6 @@ export function buildRight(socket, whoami, clock) {
         
         start_btn.addEventListener("click", (event) => {
             event.preventDefault();
-            console.log(socket)
             socket.emit("Start Game");
         }); 
         
@@ -37,7 +36,6 @@ export function buildRight(socket, whoami, clock) {
         socket.on("Start Game Status", ({status,msg}) => {
             startGame(socket, status, msg);
         });
-
     } else { 
         //status is always true for non room owner 
         socket.on("Start Game Status", ({status,msg}) => {

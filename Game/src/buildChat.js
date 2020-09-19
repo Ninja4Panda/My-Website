@@ -84,5 +84,10 @@ function addMessage(msg, colour) {
     div.style.color = colour;
     const messages = document.getElementById('chat-messages');
     messages.appendChild(div);
+
+    //Auto scroll to the bottom
+    if(messages.scrollTop+messages.clientHeight >= messages.scrollHeight-30) {
+        div.scrollIntoView();
+    }
 }
 
