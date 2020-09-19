@@ -38,4 +38,4 @@ Server caches all sockets in a game for faster lookup even though they are all i
 
 ### Known bugs
 - Roomid & uid can be number sometimes which makes holes array 
-- Start Game doesn't work when there is only one person in the room(It shouldn't work anyways. During testing, when there is only one person in the room, the room will not function correctly)
+- ~Start Game doesn't work when there is only one person in the room(It shouldn't work anyways. During testing, when there is only one person in the room, the room will not function correctly)~

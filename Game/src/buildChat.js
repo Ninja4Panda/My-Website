@@ -47,7 +47,7 @@ function createChat(socket) {
     input.placeholder = "Enter Message";
     input.autocomplete = "off";
     input.required = "on";
-    
+
     //Toggle the message on & off
     socket.on("Toggle Message", ()=> {
         if(input.disabled) {

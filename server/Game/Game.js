@@ -74,11 +74,10 @@ module.exports = class Game {
             });
             //Add client into lobby
             socket.emit("A New Player Joined", {name: name, uid: player.getUid});
-            
-            //Turn on the chat  
-            socket.to(this.roomid).on("Client Message", ({msg}) => {
-                io.to(this.roomid).emit("New Message", ({name: player.getName, msg:msg}));
-            });
+        });
+        //Turn on the chat 
+        socket.on("Client Message", ({msg}) => {
+            this.server.to(this.roomid).emit("New Message", ({name: player.getName, msg:msg}));
         });
 
         //Listen to when the owner wants to initiate a game
@@ -158,12 +157,13 @@ module.exports = class Game {
                     name:name, 
                     uid:player.getUid
                 });
-
-                //Turn on the chat
-                socket.to(roomid).on("Client Message", ({msg}) => {
-                    game.server.to(roomid).emit("New Message", ({name: player.getName, msg:msg}));
-                });
+                
             });
+            //Turn on the chat
+            socket.on("Client Message", ({msg}) => {
+                game.server.to(game.roomid).emit("New Message", ({name: player.getName, msg:msg}));
+            });
+
             // console.log(game);
         }
     }
@@ -178,7 +178,7 @@ module.exports = class Game {
         if (this.started === true) { 
             //Disconnect malicious client 
             this.disconnect(socket); 
-        } else if (this.totalPlayers !== 6) {
+        } else if (this.totalPlayers !== 1) {
             //Not enough player
             const msg = "Not enough players";
             socket.emit("Start Game Status", {status:false, msg:msg});
