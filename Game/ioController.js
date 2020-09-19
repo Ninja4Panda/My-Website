@@ -15,16 +15,12 @@ export function updateGame(socket, callback) {
     socket.on("A Client Disconnected", (data) => {
         callback(2, socket, data);
     });
-    
-    socket.on("Forced Disconnect", (data) => {
-        callback(3, socket, data);
-    });
 
     socket.on("Please Vote", (data) => {
-        callback(4, socket, data);
+        callback(3, socket, data);
     })
 
     socket.on("Revive Potion", (data) => {
-        callback(5, socket, data)
+        callback(4, socket, data)
     })
 }

@@ -7,5 +7,5 @@ export function buildNote() {
     note.style ="resize: none; overflow-y: scroll; height:200px;";
     note.placeholder= "Write down your notes here";
     const content = document.getElementById("contents");
-    content.appendChild(note);
+    content.insertBefore(note, content.childNodes[1]);
 }

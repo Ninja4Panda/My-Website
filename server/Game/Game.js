@@ -163,7 +163,7 @@ module.exports = class Game {
         if (this.started === true) { 
             //Disconnect malicious client 
             this.disconnect(socket); 
-        } else if (this.totalPlayers < 8) {
+        } else if (this.totalPlayers !== 1) {
             //Not enough player
             const msg = "Not enough players";
             socket.emit("Start Game Status", {status:false, msg:msg});
@@ -271,6 +271,7 @@ function sendRole(game) {
         const target_socket = game.socketsCache[player.getUid];
         target_socket.emit("Start Game Status", {status:true});
         target_socket.emit("Show Role", {role: player.getRole, uid: player.getUid});
+        target_socket.emit("Role Description", {playerRole: player.getRole});
 
         //cache sockets with special role & tell player description 
         switch (player.getRole) {
@@ -289,6 +290,5 @@ function sendRole(game) {
             default:
                 break;
         }
-        target_socket.emit("Role Description", {playerRole: player.getRole});
     }
 }

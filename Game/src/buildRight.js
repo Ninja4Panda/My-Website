@@ -17,6 +17,7 @@ export function buildRight(socket, whoami, clock) {
 
     //Create timer for lobby
     createTimer(right, clock);
+    buildChat(socket);
     
     if (!whoami) {
         //Create Start Game button if owner
@@ -34,11 +35,13 @@ export function buildRight(socket, whoami, clock) {
         //Listen to the server respond
         socket.on("Start Game Status", ({status,msg}) => {
             startGame(socket, status, msg);
-            if (status) start_btn.remove();
         });
     } else { //players or spectator
         socket.on("Start Game Status", ({status,msg}) => {
-            startGame(socket, status, msg);
+            const timer = document.getElementById("timeout");
+            timer.remove();
+            buildDescription(socket);
+            buildNote();
         });
     }
 }
@@ -53,10 +56,12 @@ function startGame(socket, status, msg) {
     if(status) {
         const timer = document.getElementById("timeout");
         timer.remove();
+        const start_btn = document.getElementById("start-game");
+        start_btn.remove();
 
         buildDescription(socket);
         buildNote();
-        buildChat(socket);
+        // buildChat(socket);
     } else {
         //failed and show msg
         const start_btn = document.getElementById("start-game");

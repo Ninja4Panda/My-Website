@@ -22,12 +22,12 @@ export function buildDescription(socket) {
     const role_text = document.createElement("p");
     const winCon_text = document.createElement("p");
 
-    const right = document.getElementById("contents");
+    const content = document.getElementById("contents");
     description.appendChild(role);
     description.appendChild(role_text);
     description.appendChild(winCon);
     description.appendChild(winCon_text);
-    right.appendChild(description)
+    content.insertBefore(description, content.childNodes[0]);
 
     //Receive role from server
     socket.on("Role Description", ({playerRole}) => {
