@@ -37,9 +37,25 @@ function updateAvator(event, socket, data) {
             clickableAvator(data.timer, socket);
             break;
         case 4: //Revive Potion
-            createModal(data.msg, data.timer);
+            createModal(socket, data.msg, data.timer, revive, notRevive);
             break;
     }       
+}
+
+/**
+ * Revive 
+ * @param {Object} socket - Client socket object
+ */
+function revive({socket}) {
+    socket.emit("Save", ({save:true}));
+}
+
+/**
+ * Don't Revive 
+ * @param {Object} socket - Client socket object
+ */
+function notRevive({socket}) {
+    socket.emit("Save", ({save:false}));
 }
 
 /**

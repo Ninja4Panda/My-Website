@@ -145,7 +145,12 @@ function doctorTurn(game) {
             if(doctor.id === victim.id) { 
                 doctor.emit("Revive Potion", {msg:"You died tonight\nUnfortuentely you cannot save yourself.", timer:30});
                 doctor.on("Save", ()=>{
-                    posionLogic(game, doctor);
+                    if(posion) {
+                        posionLogic(game, doctor);
+                    } else {
+                        doctor.emit("System Message", {msg:"You already used the posion\nSkipping your turn"});
+                        game.clock = 160;
+                    }
                 });
             } else {
                 doctor.emit("Revive Potion", {msg:victim.getName+" died tonight\n", timer:30});
@@ -155,6 +160,7 @@ function doctorTurn(game) {
                         game.doctor[1] = 0;
                         game.clock = 164;
                     } else {
+                        doctor.emit("System Message", {msg:"You decided not to save "+ victim.getName});
                         //Posion still exist & didn't used revive potion this turn 
                         if(posion) {
                             posionLogic(game, doctor);

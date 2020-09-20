@@ -67,10 +67,20 @@ export function clickableAvator(timer, socket) {
         //Add event listeners to every avator
         for (let i = 0; i < players.length; i++) {
             const player = players[i];
-            if (player.id === "alive") {
+            if (player.firstChild.id === "alive") {
+                //Mouseover effects so user knows they can click on it
+                player.addEventListener("mouseover", (event)=> {
+                    event.preventDefault();
+                    player.style.cursor = "pointer";
+                });
+
+                //Click effect
                 player.addEventListener("click", (event)=> {
                     event.preventDefault();
-                    // if(createModal()) removeClickable();
+                    console.log("clicked");
+                    //Pop up modal for user to choose
+                    const msg = "Do you want to vote for "+player.childNodes[1].innerText+" ?";
+                    // createModal(socket, msg, 30, ,removeClickable);
                 });
             }
         }
