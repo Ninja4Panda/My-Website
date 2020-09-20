@@ -170,7 +170,7 @@ function doctorTurn(game) {
                 doctor.emit("Revive Potion", {msg:victim.getName+" died tonight\nWould you like to save him/her ?", timer:30});
                 doctor.on("Save", ({save})=>{
                     //End timer and stop listenning to "Save" event
-                    doctor.emit("End Timer");
+                    doctor.emit("End Save Timer");
                     doctor.removeAllListeners("Save");
                     //Save logics
                     if (save) {

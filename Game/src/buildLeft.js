@@ -75,7 +75,7 @@ function reviveLogic(socket, msg, timer) {
     }, 1000);
 
     //End timer  
-    socket.on("End Timer", ()=> {
+    socket.on("End Save Timer", ()=> {
         div.remove();
         closeModal();
         clearInterval(x);
