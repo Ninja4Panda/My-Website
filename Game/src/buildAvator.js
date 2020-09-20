@@ -1,3 +1,5 @@
+import { createModal } from "./buildModal.js";
+
 /**
  * Create an avator for the player
  * @param {String} player_name - Player name
@@ -80,7 +82,7 @@ export function clickableAvator(timer, socket) {
                     console.log("clicked");
                     //Pop up modal for user to choose
                     const msg = "Do you want to vote for "+player.childNodes[1].innerText+" ?";
-                    // createModal(socket, msg, 30, ,removeClickable);
+                    createModal();
                 });
             }
         }
