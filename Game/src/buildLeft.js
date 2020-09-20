@@ -1,5 +1,6 @@
 import { updateGame } from "../ioController.js";
 import { createAvator, clickableAvator, flipAvator } from "./buildAvator.js";
+import { createModal,closeModal } from "./buildModal.js";
 
 /**
  * Create the left side of the lobby
@@ -37,25 +38,68 @@ function updateAvator(event, socket, data) {
             clickableAvator(data.timer, socket);
             break;
         case 4: //Revive Potion
-            createModal(socket, data.msg, data.timer, revive, notRevive);
+            reviveLogic(socket, data.msg, data.timer);
             break;
     }       
 }
 
 /**
- * Revive 
+ * Creates a modal & a timer
  * @param {Object} socket - Client socket object
+ * @param {String} msg    - Message to display in the Modal
+ * @param {int} timer     - Time user has to decide
  */
-function revive({socket}) {
-    socket.emit("Save", ({save:true}));
+function reviveLogic(socket, msg, timer) {
+    //Create the modal
+    createModal(socket, msg, "No one", revive, notRevive);
+
+    //Create the timer
+    const main = document.getElementById("main");
+    let timeleft = timer;
+    const alert = document.createElement("h2");
+    alert.id = "timer";
+    alert.style = "color: red; text-align: center;";
+    alert.innerText = timeleft + "s left to vote";
+    main.appendChild(alert);
+
+    //Remove div when time is up
+    const x = setInterval(() => {
+        if (timeleft <= 1) {
+            clearInterval(x);
+            alert.remove();
+            closeModal();
+            socket.emit("Save", ({save:false}));
+        }
+        timeleft -= 1;
+        alert.innerText = timeleft + "s left to vote";
+    }, 1000);
+
+    //End timer  
+    socket.on("End Timer", ()=> {
+        div.remove();
+        closeModal();
+        clearInterval(x);
+    });
 }
 
 /**
- * Don't Revive 
+ * Callback when user decided to revive 
  * @param {Object} socket - Client socket object
  */
-function notRevive({socket}) {
+function revive(socket) {
+    socket.emit("Save", ({save:true}));
+    const alert = document.getElementById("timer");
+    if(alert) alert.remove();
+}
+
+/**
+ * Callback when user decided not to revive 
+ * @param {Object} socket - Client socket object
+ */
+function notRevive(socket) {
     socket.emit("Save", ({save:false}));
+    const alert = document.getElementById("timer");
+    if(alert) alert.remove();
 }
 
 /**

@@ -1,4 +1,4 @@
-import { createModal } from "./buildModal.js";
+import { createModal,closeModal } from "./buildModal.js";
 
 /**
  * Create an avator for the player
@@ -79,14 +79,25 @@ export function clickableAvator(timer, socket) {
                 //Click effect
                 player.addEventListener("click", (event)=> {
                     event.preventDefault();
-                    console.log("clicked");
                     //Pop up modal for user to choose
-                    const msg = "Do you want to vote for "+player.childNodes[1].innerText+" ?";
-                    createModal();
+                    const msg = "Are you sure you want to vote for "+player.childNodes[1].innerText+" ?";
+                    createModal(socket, msg, player.id, success_callback);
                 });
             }
         }
     }
+}
+
+/**
+ * Callback when yes is pressed in the modal 
+ * @param {int} uid -  
+ * @param {Object} socket - Socket Object  
+ */
+function success_callback(socket, uid) {
+    socket.emit("Voted", ({uid: uid}));
+    const skip = document.getElementById("skip_btn");
+    skip.remove();
+    removeClickable();
 }
 
 /**
@@ -100,8 +111,9 @@ function removeClickable() {
         //Remove event listeners for every avator by making clone
         for (let i = 0; i < players.length; i++) {
             const player = players[i];
-            if (player.id === "alive") {
-                var player_clone = player.cloneNode(true);
+            if (player.firstChild.id === "alive") {
+                const player_clone = player.cloneNode(true);
+                player_clone.style.cursor = "default";
                 player.replaceWith(player_clone);
             }
         }
@@ -124,13 +136,14 @@ function createDiv(timer, socket) {
     let timeleft = timer;
     const alert = document.createElement("h2");
     alert.style = "color: red; text-align: center;";
-    alert.innerText = timeleft + "s left to discuss and vote";
+    alert.innerText = timeleft + "s left to vote";
     div.appendChild(alert);
     
     //Create skip button
     const skip = document.createElement("button");
-    skip.innerText = "Skip";
-    skip.style= "color: grey; algin-item: center";
+    skip.innerText = "Skip Vote";
+    skip.id = "skip_btn";
+    skip.className = "btn btn-secondary";
     div.appendChild(skip);
     
     //Remove div when time is up
@@ -140,16 +153,18 @@ function createDiv(timer, socket) {
             div.remove();
             //remove clickable avator if time is up
             removeClickable();
+            closeModal();
             //Time is up and mafia voted for no one 
             socket.emit("Voted", ({uid: "No one"}));
         }
         timeleft -= 1;
-        alert.innerText = timeleft + "s left to discuss and vote";
+        alert.innerText = timeleft + "s left to vote";
     }, 1000);
 
     //End timer  
     socket.on("End Timer", ()=> {
         div.remove();
+        closeModal();
         clearInterval(x);
     });
 
@@ -159,6 +174,7 @@ function createDiv(timer, socket) {
         skip.remove();
         //remove clickable avator if skipped was pressed
         removeClickable();
+        closeModal();
         socket.emit("Voted", ({uid: "No one"}));
     });
 }

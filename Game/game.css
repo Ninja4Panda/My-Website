@@ -88,3 +88,11 @@
     box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.4);
     padding: 1rem;
 }
+
+.modal_btn {
+    cursor: pointer;
+}
+
+.modal_btn:hover {
+    background-color: #ccc;
+}

@@ -178,7 +178,7 @@ module.exports = class Game {
         if (this.started === true) { 
             //Disconnect malicious client 
             this.disconnect(socket); 
-        } else if (this.totalPlayers >= 8) { //== 8) {
+        } else if (this.totalPlayers !== 8) {
             //Not enough player
             const msg = "Not enough players";
             socket.emit("Start Game Status", {status:false, msg:msg});

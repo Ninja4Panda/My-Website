@@ -28,7 +28,7 @@ Server caches all sockets in a game for faster lookup even though they are all i
 - [ ] Change implementation of uid 
 - Changing the uid to be numbers instead of randomly generated value to allow easier communication
 
-- [ ] Implement clickable avator
+- [x] Implement clickable avator *20/09/2020*
 
 - [ ] Implement spectator 
 - Players that already died should be able to see what is going on 

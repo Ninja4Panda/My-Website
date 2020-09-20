@@ -1,3 +1,6 @@
+const INNOCENT = 0;
+const MAFIA = 1;
+
 /**
  * Mafia Operation
  * @param {Object} game - Game Object
@@ -103,7 +106,13 @@ function detectiveTurn(game) {
         try {
             if (uid !== "No one") {
                 const target = findPlayer(game, uid);
-                detective.emit("Flip", {role: target.getRole, uid: uid});
+                if (target.getRole === MAFIA) {
+                    detective.emit("Show Role", {role: target.getRole, uid: uid});
+                    detective.emit("System Message", {msg: target.getName + " is a mafia"});
+                } else {
+                    detective.emit("Show Role", {role: INNOCENT, uid: uid});
+                    detective.emit("System Message", {msg: target.getName + " is innocent"});
+                }
             } else {
                 detective.emit("System Message", {msg:"I like your confidence, good luck young man"});
             }
@@ -132,7 +141,8 @@ function doctorTurn(game) {
     const doctor = game.doctor[0];
     const revive = game.doctor[1];
     const posion = game.doctor[2];
-    
+    const doctorUid = game.players[doctor.id].getUid;
+
     //Revive potion 
     if (revive) {
         const victim = game.votes[0];
@@ -142,9 +152,13 @@ function doctorTurn(game) {
             posionLogic(game, doctor);
         } else {
             //Doctor can't save himself
-            if(doctor.id === victim.id) { 
-                doctor.emit("Revive Potion", {msg:"You died tonight\nUnfortuentely you cannot save yourself.", timer:30});
+            if(doctorUid === victim.getUid) { 
+                doctor.emit("Revive Potion", {msg:"You died tonight\nUnfortunately you cannot save yourself.", timer:30});
                 doctor.on("Save", ()=>{
+                    //End timer and stop listenning to "Save" event
+                    doctor.emit("End Timer");
+                    doctor.removeAllListeners("Save");
+                    //Posion logics
                     if(posion) {
                         posionLogic(game, doctor);
                     } else {
@@ -153,11 +167,17 @@ function doctorTurn(game) {
                     }
                 });
             } else {
-                doctor.emit("Revive Potion", {msg:victim.getName+" died tonight\n", timer:30});
+                doctor.emit("Revive Potion", {msg:victim.getName+" died tonight\nWould you like to save him/her ?", timer:30});
                 doctor.on("Save", ({save})=>{
+                    //End timer and stop listenning to "Save" event
+                    doctor.emit("End Timer");
+                    doctor.removeAllListeners("Save");
+                    //Save logics
                     if (save) {
                         doctor.emit("System Message", {msg:"You decided to save "+ victim.getName});
                         game.doctor[1] = 0;
+                        //Remove the dead player from the array
+                        game.votes = [];
                         game.clock = 164;
                     } else {
                         doctor.emit("System Message", {msg:"You decided not to save "+ victim.getName});
@@ -199,8 +219,8 @@ function posionLogic(game, doctor) {
                 doctor.emit("System Message", {msg:"You posioned "+victim.getName});
             } catch (err) {//Forced disconnect client when they provide undefined uid as this shouldn't happen
                 console.log(err);
-                detective.emit("Forced Disconnect", {msg: "Unexpected error occurred"});
-                detective.disconnect();
+                doctor.emit("Forced Disconnect", {msg: "Unexpected error occurred"});
+                doctor.disconnect();
             }
         }
         doctor.removeAllListeners("Voted");
