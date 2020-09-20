@@ -48,8 +48,10 @@ function mafiaTurn(game) {
                 }
 
                 const numMafia = Object.keys(game.mafiaCache).length;
+                const numVotes = Object.values(game.votes).reduce((a,b)=> a+b,0);
                 //Speed up to the next phase if everyone already voted
-                if (game.votes[uid] === numMafia) {//Everyone agreed to vote the same player 
+                //Everyone agreed to vote the same player
+                if (game.votes[uid] === numMafia) { 
                     game.votes = [];
                     //Change the votes to normal array for easier access
                     //Push the player object into the votes
@@ -57,7 +59,8 @@ function mafiaTurn(game) {
                     //Tell frontend to end the timer
                     io.to(mafiaRoom).emit("End Timer");
                     game.clock = 62;
-                } else if(Object.keys(game.votes).length === numMafia) {//Everyone voted different player
+                } else if(numVotes === numMafia) {
+                    //Someone voted a different player
                     game.votes = []; //no one will be killed
                     //Tell frontend to end the timer
                     io.to(mafiaRoom).emit("End Timer");

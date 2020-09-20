@@ -70,11 +70,16 @@ function startGameLogic(game) {
 function summary(game) {
     const io = game.server;
     const victim = game.votes[0];
+    const victim2 = game.votes[1];
     //No one died
     if (victim === undefined) {
         io.to(game.roomid).emit("System Message", {msg: "No one died tonight\n"});
     } else {
-        io.to(game.roomid).emit("System Message", {msg: victim.getName+" died tonight\n"});
+        if(victim2 !== undefined && victim !== victim2) {
+            io.to(game.roomid).emit("System Message", {msg: victim.getName+" & "+victim2.getName+" died tonight\n"});
+        } else {
+            io.to(game.roomid).emit("System Message", {msg: victim.getName+" died tonight\n"});
+        }
     }
 }
 
