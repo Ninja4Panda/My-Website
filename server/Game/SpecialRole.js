@@ -11,6 +11,8 @@ function mafiaTurn(game) {
         const socket = game.mafiaCache[key];
         const player = game.players[socket.id];
         
+        //Flip the mafia so they know each other
+        io.to(mafiaRoom).emit("Show Role", {role: player.getRole, uid:player.getUid});
         //System message
         socket.emit("System Message", {msg: "All mafias must agree on the same person otherwise no one will be killed\nClick on the player to vote when you are ready\nMafias can dicuss who to kill in here, other players will not be able to see your messages"});
 
@@ -42,33 +44,43 @@ function mafiaTurn(game) {
                     game.votes[uid]++;
                 }
 
+                const numMafia = Object.keys(game.mafiaCache).length;
                 //Speed up to the next phase if everyone already voted
-                if (game.votes[uid] === 3) {//Everyone agreed to vote the same player 
-                    delete game.votes[uid];
+                if (game.votes[uid] === numMafia) {//Everyone agreed to vote the same player 
+                    game.votes = [];
                     //Change the votes to normal array for easier access
                     //Push the player object into the votes
                     if (uid !== "No one") game.votes.push(victim);
                     //Tell frontend to end the timer
                     io.to(mafiaRoom).emit("End Timer");
-                    game.clock = 63;
-
-                } else if(Object.keys(game.votes).length === 3) {//Everyone voted different player
-                    delete game.votes[uid]; //no one will be killed
+                    game.clock = 62;
+                } else if(Object.keys(game.votes).length === numMafia) {//Everyone voted different player
+                    game.votes = []; //no one will be killed
                     //Tell frontend to end the timer
                     io.to(mafiaRoom).emit("End Timer");
-                    game.clock = 63;
+                    game.clock = 62;
                 }
                                 
-                //Stop the communation
-                socket.emit("Toggle Message");
+                //Stop listening to vote
                 socket.removeAllListeners("Voted");
-                socket.removeAllListeners("Client Message");
             } catch(err) {//Forced disconnect client when they provide undefined uid
                 console.log(err);
                 socket.emit("Forced Disconnect", {msg: "Unexpected error occurred"});
                 socket.disconnect();
             }
         });
+    }
+}
+
+/**
+ * End Mafia chat 
+ * @param {Object} game 
+ */
+function endMafia(game) {
+    for(let key in game.mafiaCache) {
+        const socket = game.mafiaCache[key];
+        socket.emit("Toggle Message");
+        socket.removeAllListeners("Client Message");
     }
 }
 
@@ -95,8 +107,8 @@ function detectiveTurn(game) {
             } else {
                 detective.emit("System Message", {msg:"I like your confidence, good luck young man"});
             }
-            detective.removeAllListeners("Voted");
             game.clock = 98;
+            detective.removeAllListeners("Voted");
             detective.emit("End Timer");
         } catch(err) {//Forced disconnect client when they provide undefined uid as this shouldn't happen
             console.log(err);
@@ -112,7 +124,10 @@ function detectiveTurn(game) {
  */
 function doctorTurn(game) {
     //Doctor is dead or disconnected already
-    if (game.doctor === null) return;
+    if (game.doctor === null) {
+        game.clock = 160;
+        return;
+    }
     
     const doctor = game.doctor[0];
     const revive = game.doctor[1];
@@ -138,7 +153,7 @@ function doctorTurn(game) {
                     if (save) {
                         doctor.emit("System Message", {msg:"You decided to save "+ victim.getName});
                         game.doctor[1] = 0;
-                        game.clock = 165;
+                        game.clock = 164;
                     } else {
                         //Posion still exist & didn't used revive potion this turn 
                         if(posion) {
@@ -184,7 +199,7 @@ function posionLogic(game, doctor) {
         }
         doctor.removeAllListeners("Voted");
         doctor.emit("End Timer");
-        game.clock = 165;
+        game.clock = 164;
     });
 }
 
@@ -200,5 +215,6 @@ function findPlayer(game, uid) {
     return game.players[victim.id];
 }
 exports.mafiaTurn = mafiaTurn;
-exports.doctorTurn = doctorTurn;
+exports.endMafia = endMafia;
 exports.detectiveTurn = detectiveTurn;
+exports.doctorTurn = doctorTurn;
