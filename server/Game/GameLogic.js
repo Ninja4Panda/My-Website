@@ -1,4 +1,8 @@
-const { endMafia,mafiaTurn,detectiveTurn,doctorTurn } = require("./SpecialRole");
+const { endMafia,mafiaTurn,detectiveTurn,nurseTurn } = require("./SpecialRole");
+const INNOCENT = 0;
+const MAFIA = 1;
+const DETECTIVE = 2;
+const NURSE = 3;
 
 function startGameLogic(game) {
     const io = game.server;
@@ -38,14 +42,14 @@ function startGameLogic(game) {
             case 100://Prompt detective to sleep 
                 io.to(game.roomid).emit("System Message", {msg: "Detective please go to sleep"});
                 break;
-            case 102://Prompt doctor to wake up
-                io.to(game.roomid).emit("System Message", {msg: "Doctor please wake up"});
+            case 102://Prompt nurse to wake up
+                io.to(game.roomid).emit("System Message", {msg: "Nurse please wake up"});
                 break;
-            case 104://Doctor turn
-                doctorTurn(game);
+            case 104://Nurse turn
+                nurseTurn(game);
                 break;
-            case 166://Prompt doctor to sleep 
-                io.to(game.roomid).emit("System Message", {msg: "Doctor please go to sleep"});
+            case 166://Prompt nurse to sleep 
+                io.to(game.roomid).emit("System Message", {msg: "Nurse please go to sleep"});
                 break;
             case 168://Everyone wakes up & summary of what happened last night
                 io.to(game.roomid).emit("System Message", {msg: "Everyone please wake up"});
@@ -69,17 +73,61 @@ function startGameLogic(game) {
  */
 function summary(game) {
     const io = game.server;
+    //Only 2 people can die in one night
     const victim = game.votes[0];
     const victim2 = game.votes[1];
     //No one died
     if (victim === undefined) {
         io.to(game.roomid).emit("System Message", {msg: "No one died tonight\n"});
     } else {
+        //Two people died
         if(victim2 !== undefined && victim !== victim2) {
+            died(game, victim);
+            died(game, victim2);
             io.to(game.roomid).emit("System Message", {msg: victim.getName+" & "+victim2.getName+" died tonight\n"});
+            io.to(game.roomid).emit("Show Role", {uid: victim.getUid, role:-1});
+            io.to(game.roomid).emit("Show Role", {uid: victim2.getUid, role:-1});
         } else {
+            died(game, victim);
             io.to(game.roomid).emit("System Message", {msg: victim.getName+" died tonight\n"});
+            io.to(game.roomid).emit("Show Role", {uid: victim.getUid, role:-1});
         }
+        game.votes = [];
+    }
+}
+
+/**
+ * Do dead logic by adding & removing from different arrays
+ * @param {Object} game - Game Object
+ * @param {Object} victim - Player Object
+ */
+function died(game, victim) {
+    const socket = game.socketsCache[victim.getUid];
+    //Store into the dead array
+    game.dead.push(socket);
+    game.dead.push(victim);
+
+    //Dead logic
+    switch(victim.getRole) {
+        case INNOCENT:
+            delete game.socketsCache[victim.getUid];
+            delete game.players[socket.id];
+            break;
+        case MAFIA:
+            delete game.mafiaCache[victim.getUid];
+            delete game.socketsCache[victim.getUid];
+            delete game.players[socket.id];
+            break;
+        case DETECTIVE:
+            game.detective = null;
+            delete game.socketsCache[victim.getUid];
+            delete game.players[socket.id];
+            break;
+        case NURSE:
+            game.nurse = null;
+            delete game.socketsCache[victim.getUid];
+            delete game.players[socket.id];
+            break;
     }
 }
 
@@ -97,11 +145,10 @@ function gameOver(game) {
  * @param {Object} game - Game object 
  */
 function startChat(game) {
-    game.server.to(game.roomid).emit("Toggle Message");
-
     for (let key in game.socketsCache) {
         const socket = game.socketsCache[key];
         const player = game.players[socket.id]; 
+        socket.emit("Toggle Message");
         socket.on("Client Message", ({msg}) => {
             game.server.to(game.roomid).emit("New Message", ({name: player.getName, msg:msg}));
         });
@@ -113,10 +160,9 @@ function startChat(game) {
  * @param {Object} game - Game object 
  */
 function endChat(game) {
-    game.server.to(game.roomid).emit("Toggle Message");
-
     for (let key in game.socketsCache) {
         const socket = game.socketsCache[key];
+        socket.emit("Toggle Message");
         socket.removeAllListeners("Client Message");
     }
 } 

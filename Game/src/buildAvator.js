@@ -14,7 +14,7 @@ export function createAvator(player_name, uid) {
     //Create player avator
     const avator = document.createElement("img");
     avator.id = "alive";
-    avator.src = "/assests/unknown.jpg";
+    avator.src = "/assests/unknown.png";
     avator.width = "200";
     avator.height = "300";
     slot.appendChild(avator);
@@ -38,18 +38,22 @@ export function createAvator(player_name, uid) {
 export function flipAvator(role, uid) {
     const img = document.getElementById(uid).firstChild;
     switch(role) {
+        case -1: //dead
+            img.src = "/assests/dead.png";
+            img.id = "dead";
+            break; 
         case 0: //innocents
-        img.src = "/assests/innocent.png";
-        break;
+            img.src = "/assests/innocent.png";
+            break;
         case 1: //mafia
-        img.src = "/assests/mafia.png";
-        break;
+            img.src = "/assests/mafia.png";
+            break;
         case 2: //detective
-        img.src = "/assests/detective.png";
-        break;
-        case 3: //doctor
-        img.src = "/assests/doctor.png";
-        break;
+            img.src = "/assests/detective.png";
+            break;
+        case 3: //nurse
+            img.src = "/assests/nurse.png";
+            break;
     }
 }
 

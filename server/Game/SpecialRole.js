@@ -131,64 +131,64 @@ function detectiveTurn(game) {
 }
 
 /**
- * Doctor Operation
+ * Nurse Operation
  * @param {Object} game - Game Object 
  */
-function doctorTurn(game) {
-    //Doctor is dead or disconnected already
-    if (game.doctor === null) {
+function nurseTurn(game) {
+    //Nurse is dead or disconnected already
+    if (game.nurse === null) {
         game.clock = 160;
         return;
     }
     
-    const doctor = game.doctor[0];
-    const revive = game.doctor[1];
-    const posion = game.doctor[2];
-    const doctorUid = game.players[doctor.id].getUid;
+    const nurse = game.nurse[0];
+    const revive = game.nurse[1];
+    const posion = game.nurse[2];
+    const nurseUid = game.players[nurse.id].getUid;
 
     //Revive potion 
     if (revive) {
         const victim = game.votes[0];
         //No one died
         if (victim === undefined) {
-            doctor.emit("System Message", {msg:"No one died tonight\n"});
-            posionLogic(game, doctor);
+            nurse.emit("System Message", {msg:"No one died tonight\n"});
+            posionLogic(game, nurse);
         } else {
-            //Doctor can't save himself
-            if(doctorUid === victim.getUid) { 
-                doctor.emit("Revive Potion", {msg:"You died tonight\nUnfortunately you cannot save yourself.", timer:30});
-                doctor.on("Save", ()=>{
+            //nurse can't save himself
+            if(nurseUid === victim.getUid) { 
+                nurse.emit("Revive Potion", {msg:"You died tonight\nUnfortunately you cannot save yourself.", timer:30});
+                nurse.on("Save", ()=>{
                     //End timer and stop listenning to "Save" event
-                    doctor.emit("End Timer");
-                    doctor.removeAllListeners("Save");
+                    nurse.emit("End Timer");
+                    nurse.removeAllListeners("Save");
                     //Posion logics
                     if(posion) {
-                        posionLogic(game, doctor);
+                        posionLogic(game, nurse);
                     } else {
-                        doctor.emit("System Message", {msg:"You already used the posion\nSkipping your turn"});
+                        nurse.emit("System Message", {msg:"You already used the posion\nSkipping your turn"});
                         game.clock = 160;
                     }
                 });
             } else {
-                doctor.emit("Revive Potion", {msg:victim.getName+" died tonight\nWould you like to save him/her ?", timer:30});
-                doctor.on("Save", ({save})=>{
+                nurse.emit("Revive Potion", {msg:victim.getName+" died tonight\nWould you like to save him/her ?", timer:30});
+                nurse.on("Save", ({save})=>{
                     //End timer and stop listenning to "Save" event
-                    doctor.emit("End Save Timer");
-                    doctor.removeAllListeners("Save");
+                    nurse.emit("End Save Timer");
+                    nurse.removeAllListeners("Save");
                     //Save logics
                     if (save) {
-                        doctor.emit("System Message", {msg:"You decided to save "+ victim.getName});
-                        game.doctor[1] = 0;
+                        nurse.emit("System Message", {msg:"You decided to save "+ victim.getName});
+                        game.nurse[1] = 0;
                         //Remove the dead player from the array
                         game.votes = [];
                         game.clock = 164;
                     } else {
-                        doctor.emit("System Message", {msg:"You decided not to save "+ victim.getName});
+                        nurse.emit("System Message", {msg:"You decided not to save "+ victim.getName});
                         //Posion still exist & didn't used revive potion this turn 
                         if(posion) {
-                            posionLogic(game, doctor);
+                            posionLogic(game, nurse);
                         } else {
-                            doctor.emit("System Message", {msg:"You already used the posion\nSkipping your turn"});
+                            nurse.emit("System Message", {msg:"You already used the posion\nSkipping your turn"});
                             game.clock = 160;
                         }
                     }
@@ -196,9 +196,9 @@ function doctorTurn(game) {
             }
         }
     } else if(posion) { //Only have a posion left
-        posionLogic(game, doctor);
+        posionLogic(game, nurse);
     } else { //Nothing to use
-        doctor.emit("System Message", {msg:"You have used everything\nSkipping your turn"});
+        nurse.emit("System Message", {msg:"You have used everything\nSkipping your turn"});
         game.clock = 160;
     }
 }
@@ -206,28 +206,28 @@ function doctorTurn(game) {
 /**
  * Posion logic
  * @param {Object} game   - Game Object
- * @param {Object} doctor - Doctor socket 
+ * @param {Object} nurse  - Nurse socket 
  */
-function posionLogic(game, doctor) {
-    doctor.emit("System Message", {msg:"Please click on the player you would like to posion"});
-    doctor.emit("Please Vote", ({timer: 30}));
-    doctor.on("Voted", ({uid}) => {
+function posionLogic(game, nurse) {
+    nurse.emit("System Message", {msg:"Please click on the player you would like to posion"});
+    nurse.emit("Please Vote", ({timer: 30}));
+    nurse.on("Voted", ({uid}) => {
         if (uid === "No one") {
-            doctor.emit("System Message", {msg:"You posioned no one"});
+            nurse.emit("System Message", {msg:"You posioned no one"});
         } else {
-            game.doctor[2] = 0;
+            game.nurse[2] = 0;
             try {
                 const victim = findPlayer(game, uid);
                 game.votes.push(victim);
-                doctor.emit("System Message", {msg:"You posioned "+victim.getName});
+                nurse.emit("System Message", {msg:"You posioned "+victim.getName});
             } catch (err) {//Forced disconnect client when they provide undefined uid as this shouldn't happen
                 console.log(err);
-                doctor.emit("Forced Disconnect", {msg: "Unexpected error occurred"});
-                doctor.disconnect();
+                nurse.emit("Forced Disconnect", {msg: "Unexpected error occurred"});
+                nurse.disconnect();
             }
         }
-        doctor.removeAllListeners("Voted");
-        doctor.emit("End Timer");
+        nurse.removeAllListeners("Voted");
+        nurse.emit("End Timer");
         game.clock = 164;
     });
 }
@@ -246,4 +246,4 @@ function findPlayer(game, uid) {
 exports.mafiaTurn = mafiaTurn;
 exports.endMafia = endMafia;
 exports.detectiveTurn = detectiveTurn;
-exports.doctorTurn = doctorTurn;
+exports.nurseTurn = nurseTurn;

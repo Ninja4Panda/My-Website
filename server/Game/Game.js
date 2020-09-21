@@ -7,7 +7,7 @@ const gameRooms = [];
 const INNOCENT = 0;
 const MAFIA = 1;
 const DETECTIVE = 2;
-const DOCTOR = 3;
+const NURSE = 3;
 /** 
  * Game state class:
  * Maintain the state and logic of the game 
@@ -18,7 +18,7 @@ const DOCTOR = 3;
  * 0-innocents 
  * 1-mafia
  * 2-detective
- * 3-doctor
+ * 3-nurse
  */ 
 module.exports = class Game { 
     server; //server io
@@ -26,14 +26,14 @@ module.exports = class Game {
     started = false;
     roomid = crypto.randomBytes(4).toString("hex");
     totalPlayers = 0; //total number of players
-    dead = []; //Array of dead 
+    dead = []; //Array of dead in the format of [socket,player,socket,player]
     socketsCache = []; //Array of all socket objects in the room indexed by uid
-    roles = [MAFIA,MAFIA,MAFIA,DETECTIVE,DOCTOR,INNOCENT,INNOCENT,INNOCENT];
+    roles = [MAFIA,MAFIA,MAFIA,DETECTIVE,NURSE,INNOCENT,INNOCENT,INNOCENT];
     uid = crypto.randomBytes(2).toString('hex'); //uid for frontend dom to identify each client 
     owner;//socket.id of owner
     mafiaCache = []; //sockets of mafias indexed by uid
     detective; //socket of detective
-    doctor = []; //doctor[0]:socket, doctor[1]:revive, doctor[2]:posion
+    nurse; //nurse[0]:socket, nurse[1]:revive, nurse[2]:posion
     votes = []; //sockets that got voted
     clock = 300;
 
@@ -217,8 +217,8 @@ module.exports = class Game {
                     //If the client disconnected with a special role
                     if(disconnect_player.getRole == DETECTIVE) {
                          this.detective = null;
-                    } else if(disconnect_player.getRole == DOCTOR) {
-                        this.doctor = null;
+                    } else if(disconnect_player.getRole == NURSE) {
+                        this.nurse = null;
                     } else if (disconnect_player.getRole == MAFIA) {
                         delete this.mafiaCache[disconnect_player.getUid];
                     }
@@ -294,10 +294,11 @@ function sendRole(game) {
             case DETECTIVE:
                 game.detective = target_socket;
                 break;
-            case DOCTOR:
-                game.doctor.push(target_socket);
-                game.doctor.push(1);
-                game.doctor.push(1);
+            case NURSE:
+                game.nurse = [];
+                game.nurse.push(target_socket);
+                game.nurse.push(1);
+                game.nurse.push(1);
                 break;
             default:
                 break;
