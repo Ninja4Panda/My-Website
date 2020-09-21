@@ -2,13 +2,103 @@ const INNOCENT = 0;
 const MAFIA = 1;
 
 /**
+ * Start the public Chat Room
+ * @param {Object} game - Game object 
+ */
+function startInnocent(game) {
+    const io = game.server;
+    for (let key in game.socketsCache) {
+        const socket = game.socketsCache[key];
+        const player = game.players[socket.id]; 
+        socket.emit("Toggle Message");
+        socket.on("Client Message", ({msg}) => {
+            game.server.to(game.roomid).emit("New Message", ({name: player.getName, msg:msg}));
+        });
+        
+        //Ask player to vote, which makes the avator clickable
+        socket.emit("Please Vote", ({timer: 90}));
+        //Listen to when the player voted
+        socket.once("Voted", ({uid})=> {
+            let msg = player.getName+" voted out no one";
+            try {
+                if (uid !== "No one") {
+                    const victim = findPlayer(game, uid);
+                    msg = player.getName+" voted out "+victim.getName;
+                }
+            } catch(err) {
+                //When client provide undefined uid
+                console.log(err);
+                uid = "No one";
+            } finally {
+                io.to(game.roomid).emit("System Message", {msg: msg});
+                //Store the vote
+                if (game.votes[uid] === undefined) {
+                    game.votes[uid] = 1;
+                } else {
+                    game.votes[uid]++;
+                }
+                
+                //Speed up to the next phase if everyone already voted
+                const numPlayers = Object.keys(game.socketsCache).length;
+                const numVotes = Object.values(game.votes).reduce((a,b)=> a+b,0);
+                //greater or equal to account for players disconnecting
+                if (numVotes >= numPlayers) {
+                    //Tell frontend to end the timer & advance the clock
+                    io.to(game.roomid).emit("End Timer");
+                    game.clock = 262;
+                }
+            }
+        });
+    }
+}
+
+/**
+ * End the public Chat Room & count votes
+ * @param {Object} game - Game object 
+ */
+function endInnocent(game) {
+    for (let key in game.socketsCache) {
+        const socket = game.socketsCache[key];
+        socket.emit("Toggle Message");
+        socket.removeAllListeners("Client Message");
+    }
+    // const minVote = numPlayers/2;
+// //Everyone agreed to vote on the same player
+// if (game.votes[uid] === numPlayers) { 
+//     if (uid === "No one") {
+//         io.to(game.roomid).emit("System Message", {msg: "No one got voted out\n"});
+//     } else {
+//         //kill the player
+//         died(game, victim);
+//         io.to(game.roomid).emit("System Message", {msg: victim.getName+" got voted out\n"});
+//     }
+//     //Change the votes to normal array for next round 
+//     game.votes = [];
+//     //Tell frontend to end the timer
+//     io.to(game.roomid).emit("End Timer");
+//     // game.clock = ;
+// } else if(numVotes >= numPlayers) {
+//     //greater than or equal to because someone might disconnect after voting
+//     for (let uid in game.votes) {
+//         const numOfVotes = game.votes[uid]; 
+//         if (numVotes >= minVote) {
+
+//         }
+//     }
+//     game.votes = [];
+//     io.to(game.roomid).emit("End Timer");
+//     // game.clock = ;
+// }
+} 
+
+/**
  * Mafia Operation
  * @param {Object} game - Game Object
  */
-function mafiaTurn(game) {
+function startMafia(game) {
     const mafiaRoom = game.roomid+"-m";
     const io = game.server;
-
+    
     //send only to mafias
     for(let key in game.mafiaCache) { 
         const socket = game.mafiaCache[key];
@@ -100,7 +190,7 @@ function endMafia(game) {
  * Police Operation
  * @param {Object} game - Game Object 
  */
-function policeTurn(game) {
+function startPolice(game) {
     const police = game.police;
     //Police is dead or disconnected already
     if (game.police === null) {
@@ -139,7 +229,7 @@ function policeTurn(game) {
  * Nurse Operation
  * @param {Object} game - Game Object 
  */
-function nurseTurn(game) {
+function startNurse(game) {
     //Nurse is dead or disconnected already
     if (game.nurse === null) {
         game.clock = 160;
@@ -245,8 +335,10 @@ function findPlayer(game, uid) {
     if (victim === undefined) throw new ReferenceError("Undefined player");
     return game.players[victim.id];
 }
-exports.findPlayer = findPlayer;
-exports.mafiaTurn = mafiaTurn;
+
+exports.startInnocent = startInnocent;
+exports.endInnocent = endInnocent;
+exports.startMafia = startMafia;
 exports.endMafia = endMafia;
-exports.policeTurn = policeTurn;
-exports.nurseTurn = nurseTurn;
+exports.startPolice = startPolice;
+exports.startNurse = startNurse;

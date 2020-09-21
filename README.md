@@ -32,10 +32,12 @@ If the last mafia that hasn't voted yet but then disconnected, mafia turn will n
 
 - [x] Implement clickable avator *20/09/2020*
 
-- [ ] Implement spectator 
+- [x] Implement spectator *22/09/2020*
 - Players that already died should be able to see what is going on but can't talk 
 
-- [ ] Dead players operation
+- [ ] Dead players implementation
+- Dead array implemented for dead players in [dead_socket, dead_player] 
+- Dead players will be added back in after the game finished so they can talk again 
 
 - [ ] Test for players that trys to change the img.id to alive from dead
 - Should show that they voted for no one 
@@ -44,7 +46,7 @@ If the last mafia that hasn't voted yet but then disconnected, mafia turn will n
 - Nurse finds out the potenially dead person in game.votes when he still has a revive potion
 
 ### Known bugs
-- ~Roomid & uid can be number sometimes which makes holes array~(Fixed by adding checks*6/09/2020*)
-- ~Start Game doesn't work when there is only one person in the room(It shouldn't work anyways. During testing, when there is only one person in the room, the room will not function correctly)~(Fixed by putting the start chat event outside of join room callback *20/09/2020*)
-- ~A player disconnected after being picked as kill target doesn't work correctly.~(Fixed by putting a check inside died function *22/09/2020*)
-- ~If a player disconnect right at the moment when another player vote him the voting player will be disconnected.~(Fixed by changing operations in the catch *22/09/2020*)
+- ~Roomid & uid can be number sometimes which makes holes array~ (Fixed by adding checks*6/09/2020*)
+- ~Start Game doesn't work when there is only one person in the room(It shouldn't work anyways. During testing, when there is only one person in the room, the room will not function correctly)~ (Fixed by putting the start chat event outside of join room callback *20/09/2020*)
+- ~A player disconnected after being picked as kill target doesn't work correctly.~ (Fixed by putting a check inside died function *22/09/2020*)
+- ~If a player disconnect right at the moment when another player vote him the voting player will be disconnected.~ (Fixed by changing operations in the catch *22/09/2020*)
