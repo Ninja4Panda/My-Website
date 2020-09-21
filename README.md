@@ -35,6 +35,8 @@ Server caches all sockets in a game for faster lookup even though they are all i
 
 - [ ] Dead players operation
 
+- [ ] Test for disconnecting players that trys to change the img.id to alive from dead 
+
 - [x] Implement nurse logic *12/09/2020*
 - Nurse finds out the potenially dead person in game.votes when he still has a revive potion
 

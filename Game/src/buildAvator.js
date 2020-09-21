@@ -39,7 +39,7 @@ export function flipAvator(role, uid) {
     const img = document.getElementById(uid).firstChild;
     switch(role) {
         case -1: //dead
-            img.src = "/assests/dead.png";
+            img.style.filter = "grayscale(100%)";
             img.id = "dead";
             break; 
         case 0: //innocents
