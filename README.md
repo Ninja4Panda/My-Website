@@ -31,7 +31,7 @@ Server caches all sockets in a game for faster lookup even though they are all i
 - [x] Implement clickable avator *20/09/2020*
 
 - [ ] Implement spectator 
-- Players that already died should be able to see what is going on 
+- Players that already died should be able to see what is going on but can't talk 
 
 - [ ] Dead players operation
 

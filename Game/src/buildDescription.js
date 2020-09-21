@@ -46,7 +46,7 @@ export function buildDescription(socket) {
                 winCon_text.style.color = "pink";
                 break;
             case 2:
-                role_text.innerText = "Detective";
+                role_text.innerText = "Police";
                 role_text.style.color = "GreenYellow";
                 winCon_text.innerText = "Vote all mafia out";
                 winCon_text.style.color ="GreenYellow";

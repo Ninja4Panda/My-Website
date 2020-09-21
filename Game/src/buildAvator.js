@@ -48,8 +48,8 @@ export function flipAvator(role, uid) {
         case 1: //mafia
             img.src = "/assests/mafia.png";
             break;
-        case 2: //detective
-            img.src = "/assests/detective.png";
+        case 2: //police
+            img.src = "/assests/police.png";
             break;
         case 3: //nurse
             img.src = "/assests/nurse.png";

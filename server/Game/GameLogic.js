@@ -1,7 +1,7 @@
-const { endMafia,mafiaTurn,detectiveTurn,nurseTurn } = require("./SpecialRole");
+const { endMafia,mafiaTurn,policeTurn,nurseTurn } = require("./SpecialRole");
 const INNOCENT = 0;
 const MAFIA = 1;
-const DETECTIVE = 2;
+const POLICE = 2;
 const NURSE = 3;
 
 function startGameLogic(game) {
@@ -33,14 +33,14 @@ function startGameLogic(game) {
                 endMafia(game);
                 io.to(game.roomid).emit("System Message", {msg: "Mafia please go to sleep"});
                 break;
-            case 66://Prompt detective to wake up
-                io.to(game.roomid).emit("System Message", {msg: "Detective please wake up"});
+            case 66://Prompt police to wake up
+                io.to(game.roomid).emit("System Message", {msg: "Police please wake up"});
                 break;
-            case 68://Detective turn
-                detectiveTurn(game);
+            case 68://Police turn
+                policeTurn(game);
                 break;
-            case 100://Prompt detective to sleep 
-                io.to(game.roomid).emit("System Message", {msg: "Detective please go to sleep"});
+            case 100://Prompt police to sleep 
+                io.to(game.roomid).emit("System Message", {msg: "Police please go to sleep"});
                 break;
             case 102://Prompt nurse to wake up
                 io.to(game.roomid).emit("System Message", {msg: "Nurse please wake up"});
@@ -118,8 +118,8 @@ function died(game, victim) {
             delete game.socketsCache[victim.getUid];
             delete game.players[socket.id];
             break;
-        case DETECTIVE:
-            game.detective = null;
+        case POLICE:
+            game.police = null;
             delete game.socketsCache[victim.getUid];
             delete game.players[socket.id];
             break;

@@ -91,41 +91,41 @@ function endMafia(game) {
 }
 
 /**
- * Detective Operation
+ * Police Operation
  * @param {Object} game - Game Object 
  */
-function detectiveTurn(game) {
-    const detective = game.detective;
-    //Detective is dead or disconnected already
-    if (game.detective === null) {
+function policeTurn(game) {
+    const police = game.police;
+    //Police is dead or disconnected already
+    if (game.police === null) {
         game.clock = 98;
         return;
     }
 
     //Ask to vote on who to check, which makes the avator clickable
-    detective.emit("System Message", {msg:"Please click on the player you would like to check"});
-    detective.emit("Please Vote", ({timer: 30}));
-    detective.on("Voted", ({uid})=> {
+    police.emit("System Message", {msg:"Please click on the player you would like to check"});
+    police.emit("Please Vote", ({timer: 30}));
+    police.on("Voted", ({uid})=> {
         try {
             if (uid !== "No one") {
                 const target = findPlayer(game, uid);
                 if (target.getRole === MAFIA) {
-                    detective.emit("Show Role", {role: target.getRole, uid: uid});
-                    detective.emit("System Message", {msg: target.getName + " is a mafia"});
+                    police.emit("Show Role", {role: target.getRole, uid: uid});
+                    police.emit("System Message", {msg: target.getName + " is a mafia"});
                 } else {
-                    detective.emit("Show Role", {role: INNOCENT, uid: uid});
-                    detective.emit("System Message", {msg: target.getName + " is innocent"});
+                    police.emit("Show Role", {role: INNOCENT, uid: uid});
+                    police.emit("System Message", {msg: target.getName + " is innocent"});
                 }
             } else {
-                detective.emit("System Message", {msg:"I like your confidence, good luck young man"});
+                police.emit("System Message", {msg:"I like your confidence, good luck young man"});
             }
             game.clock = 98;
-            detective.removeAllListeners("Voted");
-            detective.emit("End Timer");
+            police.removeAllListeners("Voted");
+            police.emit("End Timer");
         } catch(err) {//Forced disconnect client when they provide undefined uid as this shouldn't happen
             console.log(err);
-            detective.emit("Forced Disconnect", {msg: "Unexpected error occurred"});
-            detective.disconnect();
+            police.emit("Forced Disconnect", {msg: "Unexpected error occurred"});
+            police.disconnect();
         }
     });
 }
@@ -245,5 +245,5 @@ function findPlayer(game, uid) {
 }
 exports.mafiaTurn = mafiaTurn;
 exports.endMafia = endMafia;
-exports.detectiveTurn = detectiveTurn;
+exports.policeTurn = policeTurn;
 exports.nurseTurn = nurseTurn;

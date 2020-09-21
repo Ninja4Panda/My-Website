@@ -6,7 +6,7 @@ const { startGameLogic } = require("./GameLogic");
 const gameRooms = []; 
 const INNOCENT = 0;
 const MAFIA = 1;
-const DETECTIVE = 2;
+const POLICE = 2;
 const NURSE = 3;
 /** 
  * Game state class:
@@ -17,7 +17,7 @@ const NURSE = 3;
  * 
  * 0-innocents 
  * 1-mafia
- * 2-detective
+ * 2-police
  * 3-nurse
  */ 
 module.exports = class Game { 
@@ -28,11 +28,11 @@ module.exports = class Game {
     totalPlayers = 0; //total number of players
     dead = []; //Array of dead in the format of [socket,player,socket,player]
     socketsCache = []; //Array of all socket objects in the room indexed by uid
-    roles = [MAFIA,MAFIA,MAFIA,DETECTIVE,NURSE,INNOCENT,INNOCENT,INNOCENT];
+    roles = [MAFIA,MAFIA,MAFIA,POLICE,NURSE,INNOCENT,INNOCENT,INNOCENT];
     uid = crypto.randomBytes(2).toString('hex'); //uid for frontend dom to identify each client 
     owner;//socket.id of owner
     mafiaCache = []; //sockets of mafias indexed by uid
-    detective; //socket of detective
+    police; //socket of police
     nurse; //nurse[0]:socket, nurse[1]:revive, nurse[2]:posion
     votes = []; //sockets that got voted
     clock = 300;
@@ -215,8 +215,8 @@ module.exports = class Game {
             } else {
                 if (this.started) {
                     //If the client disconnected with a special role
-                    if(disconnect_player.getRole == DETECTIVE) {
-                         this.detective = null;
+                    if(disconnect_player.getRole == POLICE) {
+                         this.police = null;
                     } else if(disconnect_player.getRole == NURSE) {
                         this.nurse = null;
                     } else if (disconnect_player.getRole == MAFIA) {
@@ -291,8 +291,8 @@ function sendRole(game) {
                 target_socket.join(game.roomid+"-m");
                 game.mafiaCache[player.getUid] = target_socket;
                 break;
-            case DETECTIVE:
-                game.detective = target_socket;
+            case POLICE:
+                game.police = target_socket;
                 break;
             case NURSE:
                 game.nurse = [];
