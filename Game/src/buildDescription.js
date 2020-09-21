@@ -30,7 +30,7 @@ export function buildDescription(socket) {
     content.insertBefore(description, content.childNodes[0]);
 
     //Receive role from server
-    socket.on("Role Description", ({playerRole}) => {
+    socket.once("Role Description", ({playerRole}) => {
         //Change colour of text based on their role
         switch (playerRole) {
             case 0:

@@ -166,7 +166,7 @@ function createDiv(timer, socket) {
     }, 1000);
 
     //End timer  
-    socket.on("End Timer", ()=> {
+    socket.once("End Timer", ()=> {
         div.remove();
         closeModal();
         clearInterval(x);

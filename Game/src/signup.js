@@ -32,7 +32,7 @@ form.addEventListener("submit", (event) => {
 });
 
 //As of now Create Game always return true as status 
-socket.on("Create Game Status", ({status, roomid, clock}) => {
+socket.once("Create Game Status", ({status, roomid, clock}) => {
     if(status) {
         loadLobby(socket, roomid, 0, clock);
     }

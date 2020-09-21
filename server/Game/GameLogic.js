@@ -1,4 +1,4 @@
-const { endMafia,mafiaTurn,policeTurn,nurseTurn } = require("./SpecialRole");
+const { endMafia,mafiaTurn,policeTurn,nurseTurn,findPlayer } = require("./SpecialRole");
 const INNOCENT = 0;
 const MAFIA = 1;
 const POLICE = 2;
@@ -21,7 +21,7 @@ function startGameLogic(game) {
         switch(game.clock) {
             case 0://Everyone goes to sleep 
                 io.to(game.roomid).emit("System Message", {msg: "Everyone please go to sleep"});
-                endChat(game);
+                endPub(game);
                 break;
             case 2://Prompt mafia to wake up
                 io.to(game.roomid).emit("System Message", {msg: "Mafia please wake up"});   
@@ -55,12 +55,11 @@ function startGameLogic(game) {
                 io.to(game.roomid).emit("System Message", {msg: "Everyone please wake up"});
                 summary(game);
                 break;
-            case 170://Start chat
+            case 170://Start chat & ask people to vote
                 io.to(game.roomid).emit("System Message", {msg: "Please begin discussion"});
-                startChat(game);
+                startPub(game);
                 break;
-            case 172:
-
+            case 262:
                 break;
         }
         game.clock++;
@@ -84,12 +83,12 @@ function summary(game) {
         if(victim2 !== undefined && victim !== victim2) {
             died(game, victim);
             died(game, victim2);
-            io.to(game.roomid).emit("System Message", {msg: victim.getName+" & "+victim2.getName+" died tonight\n"});
+            io.to(game.roomid).emit("System Message", {msg: victim.getName+" & "+victim2.getName+" died yesterday night\n"});
             io.to(game.roomid).emit("Show Role", {uid: victim.getUid, role:-1});
             io.to(game.roomid).emit("Show Role", {uid: victim2.getUid, role:-1});
         } else {
             died(game, victim);
-            io.to(game.roomid).emit("System Message", {msg: victim.getName+" died tonight\n"});
+            io.to(game.roomid).emit("System Message", {msg: victim.getName+" died yesterday night\n"});
             io.to(game.roomid).emit("Show Role", {uid: victim.getUid, role:-1});
         }
         game.votes = [];
@@ -103,6 +102,9 @@ function summary(game) {
  */
 function died(game, victim) {
     const socket = game.socketsCache[victim.getUid];
+    //Player disconnected in between the time of picked and when "die" happens
+    if (socket) return;
+    
     //Store into the dead array
     game.dead.push(socket);
     game.dead.push(victim);
@@ -144,13 +146,80 @@ function gameOver(game) {
  * Start the public Chat Room
  * @param {Object} game - Game object 
  */
-function startChat(game) {
+function startPub(game) {
+    const io = game.server;
     for (let key in game.socketsCache) {
         const socket = game.socketsCache[key];
         const player = game.players[socket.id]; 
         socket.emit("Toggle Message");
         socket.on("Client Message", ({msg}) => {
             game.server.to(game.roomid).emit("New Message", ({name: player.getName, msg:msg}));
+        });
+
+        //Ask player to vote, which makes the avator clickable
+        socket.emit("Please Vote", ({timer: 90}));
+        //Listen to when the player voted
+        socket.once("Voted", ({uid})=> {
+            let msg;
+            try {
+                if (uid !== "No one") {
+                    const victim = findPlayer(game, uid);
+                    msg = player.getName+" voted out "+victim.getName;
+                }
+            } catch(err) {
+                //When client provide undefined uid
+                console.log(err);
+                msg =  player.getName+" voted out no one";
+                uid = "No one";
+            } finally {
+                io.to(game.roomid).emit("System Message", {msg: msg});
+                //Store the vote
+                if (game.votes[uid] === undefined) {
+                    game.votes[uid] = 1;
+                } else {
+                    game.votes[uid]++;
+                }
+
+                //Speed up to the next phase if everyone already voted
+                const numPlayers = Object.keys(game.socketsCache).length;
+                const numVotes = Object.values(game.votes).reduce((a,b)=> a+b,0);
+                //greater or equal to account for players disconnecting
+                if (numVotes >= numPlayers) {
+                    //Tell frontend to end the timer & advance the clock
+                    io.to(game.roomid).emit("End Timer");
+                    game.clock = 260;
+                }
+            }
+            
+            // const minVote = numPlayers/2;
+            // //Everyone agreed to vote on the same player
+            // if (game.votes[uid] === numPlayers) { 
+            //     if (uid === "No one") {
+            //         io.to(game.roomid).emit("System Message", {msg: "No one got voted out\n"});
+            //     } else {
+            //         //kill the player
+            //         died(game, victim);
+            //         io.to(game.roomid).emit("System Message", {msg: victim.getName+" got voted out\n"});
+            //     }
+            //     //Change the votes to normal array for next round 
+            //     game.votes = [];
+            //     //Tell frontend to end the timer
+            //     io.to(game.roomid).emit("End Timer");
+            //     // game.clock = ;
+            // } else if(numVotes >= numPlayers) {
+            //     //greater than or equal to because someone might disconnect after voting
+            //     for (let uid in game.votes) {
+            //         const numOfVotes = game.votes[uid]; 
+            //         if (numVotes >= minVote) {
+
+            //         }
+            //     }
+            //     game.votes = [];
+            //     io.to(game.roomid).emit("End Timer");
+            //     // game.clock = ;
+            // }
+                                
+
         });
     }
 }
@@ -159,7 +228,7 @@ function startChat(game) {
  * End the public Chat Room
  * @param {Object} game - Game object 
  */
-function endChat(game) {
+function endPub(game) {
     for (let key in game.socketsCache) {
         const socket = game.socketsCache[key];
         socket.emit("Toggle Message");

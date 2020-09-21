@@ -81,7 +81,7 @@ module.exports = class Game {
         });
 
         //Listen to when the owner wants to initiate a game
-        socket.on("Start Game", () => {
+        socket.once("Start Game", () => {
             this.startGame(socket);
         });
         
@@ -175,10 +175,7 @@ module.exports = class Game {
     startGame(socket) {
         console.log(socket.id+" trys to start game");
         //Check if the game is already started 
-        if (this.started === true) { 
-            //Disconnect malicious client 
-            this.disconnect(socket); 
-        } else if (this.totalPlayers !== 8) {
+        if (this.totalPlayers !== 8) {
             //Not enough player
             const msg = "Not enough players";
             socket.emit("Start Game Status", {status:false, msg:msg});

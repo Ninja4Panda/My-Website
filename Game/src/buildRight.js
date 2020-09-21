@@ -38,7 +38,7 @@ export function buildRight(socket, whoami, clock) {
         });
     } else { 
         //status is always true for non room owner 
-        socket.on("Start Game Status", ({status,msg}) => {
+        socket.once("Start Game Status", ({status,msg}) => {
             const timer = document.getElementById("timeout");
             timer.remove();
             buildDescription(socket);

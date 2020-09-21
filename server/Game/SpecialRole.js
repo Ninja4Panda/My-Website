@@ -28,58 +28,45 @@ function mafiaTurn(game) {
         //Ask to vote on who to kill, which makes the avator clickable
         socket.emit("Please Vote", ({timer: 60}));
         //Listen to when the mafia vote
-        socket.on("Voted", ({uid})=> {
+        socket.once("Voted", ({uid})=> {
+            let msg;
             try {
-                let victim;
-                let msg = player.getName+" voted to kill no one";
                 if (uid !== "No one") {
-                    victim = findPlayer(game, uid);
+                    const victim = findPlayer(game, uid);
                     msg = player.getName+" voted to kill "+victim.getName;
-                }
-                
+                }               
+            } catch(err) {
+                //Client provided undefined uid which means they voted for no one
+                console.log(err);
+                msg = player.getName+" voted to kill no one";
+                uid = "No one";
+            } finally {
                 //Display who each player voted to kill 
                 io.to(mafiaRoom).emit("System Message", {msg: msg});
                 
-                //Store the vote
+                //Store the votes
                 if (game.votes[uid] === undefined) {
                     game.votes[uid] = 1;
                 } else {
                     game.votes[uid]++;
                 }
 
+                //Speed up to the next phase if everyone already voted
                 const numMafia = Object.keys(game.mafiaCache).length;
                 const numVotes = Object.values(game.votes).reduce((a,b)=> a+b,0);
-                //Speed up to the next phase if everyone already voted
-                //Everyone agreed to vote the same player
-                if (game.votes[uid] === numMafia) { 
-                    game.votes = [];
-                    //Change the votes to normal array for easier access
-                    //Push the player object into the votes
-                    if (uid !== "No one") game.votes.push(victim);
-                    //Tell frontend to end the timer
-                    io.to(mafiaRoom).emit("End Timer");
-                    game.clock = 62;
-                } else if(numVotes === numMafia) {
-                    //Someone voted a different player
-                    game.votes = []; //no one will be killed
-                    //Tell frontend to end the timer
+                //greater or equal to account for mafia disconnecting
+                if (numVotes >= numMafia) {
+                    //Tell frontend to end the timer & advance the clock
                     io.to(mafiaRoom).emit("End Timer");
                     game.clock = 62;
                 }
-                                
-                //Stop listening to vote
-                socket.removeAllListeners("Voted");
-            } catch(err) {//Forced disconnect client when they provide undefined uid
-                console.log(err);
-                socket.emit("Forced Disconnect", {msg: "Unexpected error occurred"});
-                socket.disconnect();
             }
         });
     }
 }
 
 /**
- * End Mafia chat 
+ * End Mafia chat & count vote
  * @param {Object} game 
  */
 function endMafia(game) {
@@ -87,6 +74,26 @@ function endMafia(game) {
         const socket = game.mafiaCache[key];
         socket.emit("Toggle Message");
         socket.removeAllListeners("Client Message");
+    }
+    
+    const numMafia = Object.keys(game.mafiaCache).length;
+    //Count votes
+    for (let uid in game.votes) {
+        //Everyone agreed to vote the same player (greater or equal to account for mafia disconnecting)
+        if (game.votes[uid] >= numMafia) { 
+            //Change the votes to normal array for easier access
+            game.votes = [];
+            //Push the player object into the votes
+            if (uid !== "No one") {
+                try {
+                    const victim = findPlayer(game, uid);
+                    game.votes.push(victim);
+                } catch {
+                    //Undefined uid no need to do anything
+                    console.log(err);
+                }
+            }
+        }
     }
 }
 
@@ -105,7 +112,7 @@ function policeTurn(game) {
     //Ask to vote on who to check, which makes the avator clickable
     police.emit("System Message", {msg:"Please click on the player you would like to check"});
     police.emit("Please Vote", ({timer: 30}));
-    police.on("Voted", ({uid})=> {
+    police.once("Voted", ({uid})=> {
         try {
             if (uid !== "No one") {
                 const target = findPlayer(game, uid);
@@ -117,16 +124,15 @@ function policeTurn(game) {
                     police.emit("System Message", {msg: target.getName + " is innocent"});
                 }
             } else {
-                police.emit("System Message", {msg:"I like your confidence, good luck young man"});
+                police.emit("System Message", {msg:"No one? I like your confidence, good luck young man"});
             }
-            game.clock = 98;
-            police.removeAllListeners("Voted");
-            police.emit("End Timer");
-        } catch(err) {//Forced disconnect client when they provide undefined uid as this shouldn't happen
+        } catch(err) {
+            //Client provided undefined uid
             console.log(err);
-            police.emit("Forced Disconnect", {msg: "Unexpected error occurred"});
-            police.disconnect();
-        }
+            police.emit("System Message", {msg:"No one? I like your confidence, good luck young man"});
+        } 
+        game.clock = 98;
+        police.emit("End Timer");
     });
 }
 
@@ -157,10 +163,9 @@ function nurseTurn(game) {
             //nurse can't save himself
             if(nurseUid === victim.getUid) { 
                 nurse.emit("Revive Potion", {msg:"You died tonight\nUnfortunately you cannot save yourself.", timer:30});
-                nurse.on("Save", ()=>{
+                nurse.once("Save", ()=>{
                     //End timer and stop listenning to "Save" event
                     nurse.emit("End Timer");
-                    nurse.removeAllListeners("Save");
                     //Posion logics
                     if(posion) {
                         posionLogic(game, nurse);
@@ -171,10 +176,9 @@ function nurseTurn(game) {
                 });
             } else {
                 nurse.emit("Revive Potion", {msg:victim.getName+" died tonight\nWould you like to save him/her ?", timer:30});
-                nurse.on("Save", ({save})=>{
+                nurse.once("Save", ({save})=>{
                     //End timer and stop listenning to "Save" event
                     nurse.emit("End Save Timer");
-                    nurse.removeAllListeners("Save");
                     //Save logics
                     if (save) {
                         nurse.emit("System Message", {msg:"You decided to save "+ victim.getName});
@@ -211,22 +215,21 @@ function nurseTurn(game) {
 function posionLogic(game, nurse) {
     nurse.emit("System Message", {msg:"Please click on the player you would like to posion"});
     nurse.emit("Please Vote", ({timer: 30}));
-    nurse.on("Voted", ({uid}) => {
+    nurse.once("Voted", ({uid}) => {
         if (uid === "No one") {
             nurse.emit("System Message", {msg:"You posioned no one"});
         } else {
-            game.nurse[2] = 0;
             try {
                 const victim = findPlayer(game, uid);
+                game.nurse[2] = 0;
                 game.votes.push(victim);
                 nurse.emit("System Message", {msg:"You posioned "+victim.getName});
-            } catch (err) {//Forced disconnect client when they provide undefined uid as this shouldn't happen
+            } catch (err) {
                 console.log(err);
-                nurse.emit("Forced Disconnect", {msg: "Unexpected error occurred"});
-                nurse.disconnect();
+                //Client provided undefined uid
+                nurse.emit("System Message", {msg:"You posioned no one"});
             }
         }
-        nurse.removeAllListeners("Voted");
         nurse.emit("End Timer");
         game.clock = 164;
     });
@@ -243,6 +246,7 @@ function findPlayer(game, uid) {
     if (victim === undefined) throw new ReferenceError("Undefined player");
     return game.players[victim.id];
 }
+exports.findPlayer = findPlayer;
 exports.mafiaTurn = mafiaTurn;
 exports.endMafia = endMafia;
 exports.policeTurn = policeTurn;
