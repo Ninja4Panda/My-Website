@@ -160,7 +160,7 @@ function startPub(game) {
         socket.emit("Please Vote", ({timer: 90}));
         //Listen to when the player voted
         socket.once("Voted", ({uid})=> {
-            let msg;
+            let msg = player.getName+" voted out no one";
             try {
                 if (uid !== "No one") {
                     const victim = findPlayer(game, uid);
@@ -169,7 +169,6 @@ function startPub(game) {
             } catch(err) {
                 //When client provide undefined uid
                 console.log(err);
-                msg =  player.getName+" voted out no one";
                 uid = "No one";
             } finally {
                 io.to(game.roomid).emit("System Message", {msg: msg});
@@ -219,7 +218,6 @@ function startPub(game) {
             //     // game.clock = ;
             // }
                                 
-
         });
     }
 }

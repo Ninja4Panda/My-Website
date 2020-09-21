@@ -29,7 +29,7 @@ function mafiaTurn(game) {
         socket.emit("Please Vote", ({timer: 60}));
         //Listen to when the mafia vote
         socket.once("Voted", ({uid})=> {
-            let msg;
+            let msg = player.getName+" voted to kill no one"; 
             try {
                 if (uid !== "No one") {
                     const victim = findPlayer(game, uid);
@@ -38,7 +38,6 @@ function mafiaTurn(game) {
             } catch(err) {
                 //Client provided undefined uid which means they voted for no one
                 console.log(err);
-                msg = player.getName+" voted to kill no one";
                 uid = "No one";
             } finally {
                 //Display who each player voted to kill 
