@@ -8,7 +8,7 @@ A Website that I created using vanilla javascript, bootstrap and expresjs
 Main page for the portfolio
 
 ## **Cook Page**
-Database of Mom's recipes
+Database of Mom's recipes (Under construction)
 
 ## **Game Page**
 Recreating the classic Mafia game using socket-io 
