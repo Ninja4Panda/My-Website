@@ -62,33 +62,27 @@ function endInnocent(game) {
         socket.emit("Message Off");
         socket.removeAllListeners("Client Message");
     }
-    // const minVote = numPlayers/2;
-// //Everyone agreed to vote on the same player
-// if (game.votes[uid] === numPlayers) { 
-//     if (uid === "No one") {
-//         io.to(game.roomid).emit("System Message", {msg: "No one got voted out\n"});
-//     } else {
-//         //kill the player
-//         died(game, victim);
-//         io.to(game.roomid).emit("System Message", {msg: victim.getName+" got voted out\n"});
-//     }
-//     //Change the votes to normal array for next round 
-//     game.votes = [];
-//     //Tell frontend to end the timer
-//     io.to(game.roomid).emit("End Timer");
-//     // game.clock = ;
-// } else if(numVotes >= numPlayers) {
-//     //greater than or equal to because someone might disconnect after voting
-//     for (let uid in game.votes) {
-//         const numOfVotes = game.votes[uid]; 
-//         if (numVotes >= minVote) {
-
-//         }
-//     }
-//     game.votes = [];
-//     io.to(game.roomid).emit("End Timer");
-//     // game.clock = ;
-// }
+    
+    //Count votes
+    const nPlayers = Object.keys(game.socketsCache).length;
+    const minVote = nPlayers/2;
+    for (let uid in game.votes) {
+        //Only majority votes will count
+        if (game.votes[uid] > minVote) { 
+            //Change the votes to normal array for easier access
+            game.votes = [];
+            //Push the player object into the votes
+            if (uid !== "No one") {
+                try {
+                    const victim = findPlayer(game, uid);
+                    game.votes.push(victim);
+                } catch {
+                    //Undefined uid no need to do anything
+                    console.log(err);
+                }
+            }
+        }
+    }
 } 
 
 /**
@@ -106,8 +100,10 @@ function startMafia(game) {
         
         //Flip the mafia so they know each other
         io.to(mafiaRoom).emit("Show Role", {role: player.getRole, uid:player.getUid});
-        //System message
-        socket.emit("System Message", {msg: "All mafias must agree on the same person otherwise no one will be killed\nClick on the player to vote when you are ready\nMafias can dicuss who to kill in here, other players will not be able to see your messages"});
+        //System messages
+        socket.emit("System Message", {msg: "All mafias must agree on the same person otherwise no one will be killed"});
+        socket.emit("System Message", {msg: "Click on the player to vote when you are ready"});
+        socket.emit("System Message", {msg: "Mafias can dicuss who to kill in here, other players will not be able to see your messages"});
 
         //Start mafias chat  
         socket.emit("Message On");

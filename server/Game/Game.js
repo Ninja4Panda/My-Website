@@ -219,13 +219,22 @@ module.exports = class Game {
                     } else if (disconnect_player.getRole == MAFIA) {
                         delete this.mafiaCache[disconnect_player.getUid];
                     }
+                    //If the client disconnected after being chosen
+                    for (let key in this.votes) {
+                        if (key === disconnect_player.getUid) {
+                            //votes[uid] = number
+                            delete this.votes[key];
+                        } else if (this.votes[key] === disconnect_player) {
+                            //votes[index] = player object
+                            this.votes.splice(key, 1);
+                        }
+                    }
                 }
                 
                 //Tell every client in the room that a client is disconnected 
                 this.server.to(this.roomid).emit("A Client Disconnected", {uid: disconnect_player.getUid});
             }
         }
-        // console.log(gameRooms);
     }
     
     /**

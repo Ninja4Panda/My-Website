@@ -46,7 +46,7 @@ function startGameLogic(game) {
                 io.to(game.roomid).emit("System Message", {msg: "Nurse please wake up"});
                 break;
             case 106://Nurse turn
-                startNurse,(game);
+                startNurse(game);
                 break;
             case 168://Prompt nurse to sleep 
                 io.to(game.roomid).emit("System Message", {msg: "Nurse please go to sleep"});
@@ -59,6 +59,7 @@ function startGameLogic(game) {
                 break;   
             case 174://Start public chat & ask people to vote
                 io.to(game.roomid).emit("System Message", {msg: "Please begin with the discussion"});
+                io.to(game.roomid).emit("System Message", {msg: "Note: only majority voted player will be voted out (more than half)"});
                 startInnocent(game);
                 break;
             case 266://End public chat & count vote
@@ -119,8 +120,6 @@ function summary(game, msg) {
  */
 function died(game, victim) {
     const socket = game.socketsCache[victim.getUid];
-    //Player disconnected in between the time of picked and when "die" happens
-    if (socket) return;
     
     //Store into the dead array
     game.dead.push(socket);
