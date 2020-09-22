@@ -16,6 +16,7 @@ app.use(compression());
 //Builds all public files for pages
 const favicon = require('serve-favicon');
 app.use(favicon(path.join(__dirname+'/Main/assests/favicon.ico')));
+app.use(express.static(path.join(__dirname+"/Error")));
 app.use(express.static(path.join(__dirname+"/Main")));
 app.use(express.static(path.join(__dirname+"/Game")));
 
