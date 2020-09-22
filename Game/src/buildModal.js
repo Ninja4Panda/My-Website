@@ -3,8 +3,8 @@
  * @param {Object} socket - Socket Objcet
  * @param {String} msg    - Message to display in the modal
  * @param {int} uid       - Uid that the user clicked on
- * @param {function} success_callback - Callbacks when user press yes  
- * @param {function} fail_callback    - Callbacks when user press no
+ * @param {function} success_callback - Callbacks when user press yes inside the modal
+ * @param {function} fail_callback    - Callbacks when user press no inside the modal
  */
 export function createModal(socket, msg, uid, success_callback, fail_callback) {
     //Create the backdrop

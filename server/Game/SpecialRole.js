@@ -10,7 +10,7 @@ function startInnocent(game) {
     for (let key in game.socketsCache) {
         const socket = game.socketsCache[key];
         const player = game.players[socket.id]; 
-        socket.emit("Toggle Message");
+        socket.emit("Message On");
         socket.on("Client Message", ({msg}) => {
             game.server.to(game.roomid).emit("New Message", ({name: player.getName, msg:msg}));
         });
@@ -45,7 +45,7 @@ function startInnocent(game) {
                 if (numVotes >= numPlayers) {
                     //Tell frontend to end the timer & advance the clock
                     io.to(game.roomid).emit("End Timer");
-                    game.clock = 262;
+                    game.clock = 264;
                 }
             }
         });
@@ -59,7 +59,7 @@ function startInnocent(game) {
 function endInnocent(game) {
     for (let key in game.socketsCache) {
         const socket = game.socketsCache[key];
-        socket.emit("Toggle Message");
+        socket.emit("Message Off");
         socket.removeAllListeners("Client Message");
     }
     // const minVote = numPlayers/2;
@@ -110,7 +110,7 @@ function startMafia(game) {
         socket.emit("System Message", {msg: "All mafias must agree on the same person otherwise no one will be killed\nClick on the player to vote when you are ready\nMafias can dicuss who to kill in here, other players will not be able to see your messages"});
 
         //Start mafias chat  
-        socket.emit("Toggle Message");
+        socket.emit("Message On");
         socket.on("Client Message", ({msg}) => {
             io.to(mafiaRoom).emit("New Message", ({name: player.getName, msg:msg}));
         });
@@ -147,7 +147,7 @@ function startMafia(game) {
                 if (numVotes >= numMafia) {
                     //Tell frontend to end the timer & advance the clock
                     io.to(mafiaRoom).emit("End Timer");
-                    game.clock = 62;
+                    game.clock = 64;
                 }
             }
         });
@@ -161,7 +161,7 @@ function startMafia(game) {
 function endMafia(game) {
     for(let key in game.mafiaCache) {
         const socket = game.mafiaCache[key];
-        socket.emit("Toggle Message");
+        socket.emit("Message Off");
         socket.removeAllListeners("Client Message");
     }
     
@@ -194,7 +194,7 @@ function startPolice(game) {
     const police = game.police;
     //Police is dead or disconnected already
     if (game.police === null) {
-        game.clock = 98;
+        game.clock = 100;
         return;
     }
 
@@ -220,7 +220,7 @@ function startPolice(game) {
             console.log(err);
             police.emit("System Message", {msg:"No one? I like your confidence, good luck young man"});
         } 
-        game.clock = 98;
+        game.clock = 100;
         police.emit("End Timer");
     });
 }
@@ -232,7 +232,7 @@ function startPolice(game) {
 function startNurse(game) {
     //Nurse is dead or disconnected already
     if (game.nurse === null) {
-        game.clock = 160;
+        game.clock = 166;
         return;
     }
     
@@ -260,7 +260,7 @@ function startNurse(game) {
                         posionLogic(game, nurse);
                     } else {
                         nurse.emit("System Message", {msg:"You already used the posion\nSkipping your turn"});
-                        game.clock = 160;
+                        game.clock = 166;
                     }
                 });
             } else {
@@ -274,7 +274,7 @@ function startNurse(game) {
                         game.nurse[1] = 0;
                         //Remove the dead player from the array
                         game.votes = [];
-                        game.clock = 164;
+                        game.clock = 166;
                     } else {
                         nurse.emit("System Message", {msg:"You decided not to save "+ victim.getName});
                         //Posion still exist & didn't used revive potion this turn 
@@ -282,7 +282,7 @@ function startNurse(game) {
                             posionLogic(game, nurse);
                         } else {
                             nurse.emit("System Message", {msg:"You already used the posion\nSkipping your turn"});
-                            game.clock = 160;
+                            game.clock = 166;
                         }
                     }
                 });
@@ -292,7 +292,7 @@ function startNurse(game) {
         posionLogic(game, nurse);
     } else { //Nothing to use
         nurse.emit("System Message", {msg:"You have used everything\nSkipping your turn"});
-        game.clock = 160;
+        game.clock = 166;
     }
 }
 
@@ -320,7 +320,7 @@ function posionLogic(game, nurse) {
             }
         }
         nurse.emit("End Timer");
-        game.clock = 164;
+        game.clock = 166;
     });
 }
 

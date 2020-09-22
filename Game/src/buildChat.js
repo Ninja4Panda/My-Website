@@ -49,14 +49,13 @@ function createChat(socket) {
     input.required = "on";
 
     //Toggle the message on & off
-    socket.on("Toggle Message", ()=> {
-        if(input.disabled) {
-            input.disabled = false;
-        } else {
-            input.disabled = true;
-        }
+    socket.on("Message On", ()=> {
+        input.disabled = false;
     });
-
+    socket.on("Message Off", ()=> {
+        input.disabled = true;
+    });
+    
     //Submit a Client message event to the server when client sends a message
     form.addEventListener("submit", (event)=>{
         event.preventDefault();

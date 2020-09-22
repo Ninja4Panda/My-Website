@@ -29,42 +29,42 @@ function startGameLogic(game) {
             case 4://Mafia turn 
                 startMafia(game);
                 break;
-            case 64://Prompt mafia to sleep
+            case 66://Prompt mafia to sleep
                 endMafia(game);
                 io.to(game.roomid).emit("System Message", {msg: "Mafia please go to sleep"});
                 break;
-            case 66://Prompt police to wake up
+            case 68://Prompt police to wake up
                 io.to(game.roomid).emit("System Message", {msg: "Police please wake up"});
                 break;
-            case 68://Police turn
+            case 70://Police turn
                 startPolice(game);
                 break;
-            case 100://Prompt police to sleep 
+            case 102://Prompt police to sleep 
                 io.to(game.roomid).emit("System Message", {msg: "Police please go to sleep"});
                 break;
-            case 102://Prompt nurse to wake up
+            case 104://Prompt nurse to wake up
                 io.to(game.roomid).emit("System Message", {msg: "Nurse please wake up"});
                 break;
-            case 104://Nurse turn
+            case 106://Nurse turn
                 startNurse,(game);
                 break;
-            case 166://Prompt nurse to sleep 
+            case 168://Prompt nurse to sleep 
                 io.to(game.roomid).emit("System Message", {msg: "Nurse please go to sleep"});
                 break;
-            case 168://Everyone wakes up 
+            case 170://Everyone wakes up 
                 io.to(game.roomid).emit("System Message", {msg: "Everyone please wake up"});
                 break;
-            case 170://Summary of what happened last night
+            case 172://Summary of what happened last night
                 summary(game, " died yesterday night\n");
                 break;   
-            case 172://Start public chat & ask people to vote
+            case 174://Start public chat & ask people to vote
                 io.to(game.roomid).emit("System Message", {msg: "Please begin with the discussion"});
                 startInnocent(game);
                 break;
-            case 264://End public chat & count vote
+            case 266://End public chat & count vote
                 endInnocent(game);
                 break;
-            case 266://Summary
+            case 268://Summary
                 summary(game, " got voted out\n");
                 //reset the clock
                 game.clock = -1;
