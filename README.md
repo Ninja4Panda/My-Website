@@ -37,11 +37,11 @@ During voting phase, if a player that got voted disconnected, voting phase will 
 - [x] Implement spectator *22/09/2020*
 - Players that already died should be able to see what is going on but can't talk 
 
-- [ ] Dead players implementation
+- [x] Dead players implementation *22/09/2020*
 - Dead array implemented for dead players in [dead_socket, dead_player] 
 - Dead players will be added back in after the game finished so they can talk again 
 
-- [ ] Test for players that trys to change the img.id to alive from dead
+- [x] Test for players that trys to change the img.id to alive from dead *22/09/2020*
 - Should show that they voted for no one 
 
 - [x] Implement nurse logic *12/09/2020*

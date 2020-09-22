@@ -134,12 +134,13 @@ function createDiv(timer, socket) {
     
     //Main div to hold the skipp button and timer
     const div = document.createElement("div");
+    div.style = "text-align: center;";
     main.appendChild(div);
     
     //Create timer 
     let timeleft = timer;
     const alert = document.createElement("h2");
-    alert.style = "color: red; text-align: center;";
+    alert.style.color = "red";
     alert.innerText = timeleft + "s left to vote";
     div.appendChild(alert);
     

@@ -35,6 +35,7 @@ module.exports = class Game {
     police; //socket of police
     nurse; //nurse[0]:socket, nurse[1]:revive, nurse[2]:posion
     votes = []; //sockets that got voted
+    numInnocent = 3; //number of innocents left
     clock = 300;
 
     constructor(io, socket, name) {
@@ -81,7 +82,7 @@ module.exports = class Game {
         });
 
         //Listen to when the owner wants to initiate a game
-        socket.once("Start Game", () => {
+        socket.on("Start Game", () => {
             this.startGame(socket);
         });
         
@@ -190,6 +191,41 @@ module.exports = class Game {
     }
 
     /**
+     * 
+     */
+    finishGame() {
+        //Put the dead back into the socketCache & players array
+        for (let i=0; i<this.dead.length; i+=2) {
+            const socket = this.dead[i];
+            const player = this.dead[i+1]; 
+            this.socketsCache[player.getUid] = socket;
+            this.players[socket.id] = player;
+        }
+
+        //Game over chat room & show all roles
+        for (let key in this.socketsCache) {
+            const socket = this.socketsCache[key];
+            const player = this.players[socket.id];
+
+            //Show all roles
+            this.server.to(this.roomid).emit("Show Role", {role: player.getRole, uid:player.getUid})
+            socket.emit("Message On");
+
+            //Turn on the chat
+            socket.on("Client Message", ({msg}) => {
+                this.server.to(this.roomid).emit("New Message", ({name: player.getName, msg:msg}));
+            });
+        }
+
+        //Send to frontend for game over
+        this.server.to(this.roomid).emit("Game Over", ({timer: 180}));
+        //Disconnect everyone after 180s
+        setTimeout(()=>{
+            this.server.to(this.roomid).emit("Forced Disconnect", {msg: "I hope you had fun! Thanks for playing"});            
+        }, 180*1000);
+    }
+
+    /**
      * Disconnet the client and clean up 
      * @param {Object} socket 
      */
@@ -210,15 +246,24 @@ module.exports = class Game {
             if (this.totalPlayers === 0) {
                 delete gameRooms[this.roomid];
             } else {
+                //If the game already started
                 if (this.started) {
-                    //If the client disconnected with a special role
-                    if(disconnect_player.getRole == POLICE) {
-                         this.police = null;
-                    } else if(disconnect_player.getRole == NURSE) {
-                        this.nurse = null;
-                    } else if (disconnect_player.getRole == MAFIA) {
-                        delete this.mafiaCache[disconnect_player.getUid];
+                    //Client disconnected and his/her role
+                    switch(disconnect_player.getRole) {
+                        case INNOCENT:
+                            game.numInnocent--;
+                            break;
+                        case MAFIA:
+                            delete this.mafiaCache[disconnect_player.getUid];
+                            break;
+                        case POLICE:
+                            this.police = null;
+                            break;
+                        case NURSE:
+                            this.nurse = null;
+                            break;
                     }
+
                     //If the client disconnected after being chosen
                     for (let key in this.votes) {
                         if (key === disconnect_player.getUid) {
@@ -229,6 +274,15 @@ module.exports = class Game {
                             this.votes.splice(key, 1);
                         }
                     }
+
+                    //If the client leave after death
+                    for(let i=0; i<this.dead.length; i+=2) {
+                        const player = this.dead[i+1]; 
+                        if(player.getUid === disconnect_player.getUid) {
+                            this.votes.splice(i, 2);
+                            break;
+                        }
+                    } 
                 }
                 
                 //Tell every client in the room that a client is disconnected 

@@ -40,7 +40,52 @@ function updateAvator(event, socket, data) {
         case 4: //Revive Potion
             reviveLogic(socket, data.msg, data.timer);
             break;
+        case 5: //Game Over
+            gameOver(data.timer);
+            break;
     }       
+}
+
+/**
+ * Create timer and frontend for 
+ * @param {int} timer - Time user has to decide
+ */
+function gameOver(timer) {
+    //Main div to hold the return button and timer
+    const main = document.getElementById("main");
+    const div = document.createElement("div");
+    div.style = "text-align: center;";
+    main.appendChild(div);
+
+    //Create the timer
+    let timeleft = timer;
+    const alert = document.createElement("h2");
+    alert.id = "timer";
+    alert.style.color = "red";
+    alert.innerText = timeleft + "s left to chat";
+    div.appendChild(alert);
+
+    //Remove timer when time is up
+    const x = setInterval(() => {
+        if (timeleft <= 1) {
+            clearInterval(x);
+        }
+        timeleft -= 1;
+        alert.innerText = timeleft + "s left to chat";
+    }, 1000);
+    
+    //Create return to main button
+    const ret_btn = document.createElement("button");
+    ret_btn.innerText = "Return to main page";
+    ret_btn.id = "ret_btn";
+    ret_btn.className = "btn btn-secondary";
+    div.appendChild(ret_btn);
+    
+    //Add click event to the button
+    ret_btn.addEventListener("click", (event) => {
+        event.preventDefault();
+        location.reload();
+    });
 }
 
 /**

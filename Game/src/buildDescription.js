@@ -42,7 +42,7 @@ export function buildDescription(socket) {
             case 1:
                 role_text.innerText = "Mafia";
                 role_text.style.color = "pink";
-                winCon_text.innerText = "Kill all special roles or innocents";
+                winCon_text.innerText = "Kill nurse & police or innocents";
                 winCon_text.style.color = "pink";
                 break;
             case 2:

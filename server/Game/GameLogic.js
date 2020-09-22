@@ -74,13 +74,31 @@ function startGameLogic(game) {
         game.clock++;
     }, 1000); 
 }
+
 /**
  * Checks if game is over 
  * @param {Object} game - Game Object
  * @return True/false 
  */
 function gameOver(game) {
-    // game.
+    const io = game.server;
+    //All mafias gone 
+    const numMafia = Object.keys(game.mafiaCache).length;
+    if(numMafia === 0) {
+        if (game.police === null && game.nurse === null) {
+            io.to(game.roomid).emit("System Message", {msg: "Tied game! All mafia, nurse & police died."});
+        }else {
+            io.to(game.roomid).emit("System Message", {msg: "Good people won! All mafia died."});
+        }
+        return true;
+    } else if (game.police === null && game.nurse === null) {
+        io.to(game.roomid).emit("System Message", {msg: "Mafia won! Nurse & police died."});
+        return true;
+    } else if (game.numInnocent === 0) {
+        io.to(game.roomid).emit("System Message", {msg: "Mafia won! All innocents died."});
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -128,6 +146,7 @@ function died(game, victim) {
     //Dead logic
     switch(victim.getRole) {
         case INNOCENT:
+            game.numInnocent--;
             delete game.socketsCache[victim.getUid];
             delete game.players[socket.id];
             break;
