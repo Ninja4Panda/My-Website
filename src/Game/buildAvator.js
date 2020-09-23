@@ -1,4 +1,9 @@
 import { createModal,closeModal } from "./buildModal.js";
+import innocentPic from './assests/innocent.png';
+import mafiaPic from './assests/mafia.png';
+import policePic from './assests/police.png';
+import nursePic from './assests/nurse.png';
+import unknown from './assests/unknown.png';
 
 /**
  * Create an avator for the player
@@ -14,7 +19,7 @@ export function createAvator(player_name, uid) {
     //Create player avator
     const avator = document.createElement("img");
     avator.id = "alive";
-    avator.src = "./assests/unknown.png";
+    avator.src = unknown;
     avator.width = "200";
     avator.height = "300";
     slot.appendChild(avator);
@@ -43,16 +48,16 @@ export function flipAvator(role, uid) {
             img.id = "dead";
             break; 
         case 0: //innocents
-            img.src = "./assests/innocent.png";
+            img.src = innocentPic;
             break;
         case 1: //mafia
-            img.src = "./assests/mafia.png";
+            img.src = mafiaPic;
             break;
         case 2: //police
-            img.src = "./assests/police.png";
+            img.src = policePic;
             break;
         case 3: //nurse
-            img.src = "./assests/nurse.png";
+            img.src = nursePic;
             break;
     }
 }

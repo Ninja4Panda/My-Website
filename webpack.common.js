@@ -1,16 +1,14 @@
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
     entry: {
-        Game: './src/Game/signup.js'
+        'Game/game': './src/Game/signup.js'
     },
+    plugins: [
+        new CleanWebpackPlugin()
+    ],
     module: {
         rules: [
-            {
-                test: /\.css$/,
-                use: ['style-loader','css-loader']
-            },
             {
                 test: /\.(html)$/,
                 use: ['html-loader']
@@ -20,30 +18,20 @@ module.exports = {
                 use: {
                     loader: 'file-loader',
                     options:{
-                        name: "[name]-[hash].[ext]",
-                        outputPath:"assests"
+                        name: '[name]-[contentHash].[ext]',
+                        outputPath:(url, resourcePath, context) => {
+                            if (/Main/.test(resourcePath)) {
+                                return `/Main/assests/${url}`;
+                            } else if (/Game/.test(resourcePath)) {
+                                return `/Game/assests/${url}`;
+                            } else if (/Error/.test(resourcePath)) {
+                                return `/Error/assests/${url}`;
+                            } 
+                            return `/${url}`;
+                        }
                     }
                 }
             }
         ]
-    },
-    plugins: [
-        new CleanWebpackPlugin(),
-        new HtmlWebpackPlugin({
-            filename: 'Game/game.html',
-            template: 'src/Game/game.html',
-            cache: true,
-            hash:true
-        }),        
-        new HtmlWebpackPlugin({
-            filename: 'Main/index.html',
-            template: 'src/Main/index.html',
-            inject:false
-        }),
-        new HtmlWebpackPlugin({
-            filename: 'Error/error.html',
-            template: 'src/Error/error.html',
-            inject:false
-        })
-    ]
+    }
 };

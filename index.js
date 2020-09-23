@@ -16,8 +16,6 @@ app.use(compression());
 
 //Builds all public files for pages
 app.use(express.static(path.join(__dirname+staticFiles)));
-const favicon = require('serve-favicon');
-app.use(favicon(path.join(__dirname+'/src/Main/assests/favicon.ico')));
 
 //Handles the io connection for game
 const ioFunc = require("./server/Game/io");
