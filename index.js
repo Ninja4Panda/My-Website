@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const path = require("path");
 const http = require("http").createServer(app);
-const { port, errorPage } = require('./config');
+const { port, staticFiles, mainPage, gamePage, errorPage } = require('./config');
 
 //Compress all routes
 const compression = require('compression');

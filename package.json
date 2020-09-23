@@ -1,7 +1,7 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
+  "description": "Personal website",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,7 +10,7 @@
     "start": ""
   },
   "keywords": [],
-  "author": "",
+  "author": "Solomon Chong",
   "license": "ISC",
   "dependencies": {
     "compression": "^1.7.4",
