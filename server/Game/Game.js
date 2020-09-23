@@ -144,7 +144,7 @@ module.exports = class Game {
                     whoami:1,
                     clock:game.clock
                 });
-
+                
                 //Send other clients that is already in the room to new client 
                 for(let key in game.players) {
                     socket.emit("A New Player Joined", {
@@ -152,7 +152,7 @@ module.exports = class Game {
                         uid:game.players[key].getUid
                     });
                 }
-
+                
                 //Update other clients that a new client joined
                 socket.to(roomid).emit("A New Player Joined", {
                     name:name, 
@@ -160,6 +160,7 @@ module.exports = class Game {
                 });
                 
             });
+
             //Turn on the chat
             socket.on("Client Message", ({msg}) => {
                 game.server.to(game.roomid).emit("New Message", ({name: player.getName, msg:msg}));

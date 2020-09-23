@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const path = require("path");
 const http = require("http").createServer(app);
+const { port } = require('./config');
 
 //Compress all routes
 const compression = require('compression');
@@ -14,25 +15,27 @@ app.use(compression());
 // }));
 
 //Builds all public files for pages
+app.use(express.static(path.join(__dirname+"/src")));
 const favicon = require('serve-favicon');
-app.use(favicon(path.join(__dirname+'/Main/assests/favicon.ico')));
-app.use(express.static(path.join(__dirname+"/Error")));
-app.use(express.static(path.join(__dirname+"/Main")));
-app.use(express.static(path.join(__dirname+"/Game")));
+app.use(favicon(path.join(__dirname+'/src/Main/assests/favicon.ico')));
 
 //Handles the io connection for game
 const ioFunc = require("./server/Game/io");
 ioFunc(http);
 
+app.get("/",(req, res) => {
+  res.sendFile(process.cwd()+"/src/Main/index.html");
+});
+
 app.get("/game",(req, res) => {
-  res.sendFile(process.cwd()+"/Game/game.html");
+  res.sendFile(process.cwd()+"/src/Game/game.html");
 });
 
 // Handles page not found error
 app.use((req, res) => {
-  res.status(404).sendFile(process.cwd()+"/Error/error.html");
+  res.status(404).sendFile(process.cwd()+"/src/Error/error.html");
 });
 
-http.listen(3000, () => {
-  console.log("Listening on *:3000");
+http.listen(port, () => {
+  console.log(`Listening on *:${port}`);
 });

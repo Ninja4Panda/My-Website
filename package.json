@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js",
-    "build":"webpack"
+    "dev": "nodemon -r dotenv/config index.js dotenv_config_path=.env.dev",
+    "build": "webpack",
+    "start": ""
   },
   "keywords": [],
   "author": "",
@@ -14,12 +15,18 @@
   "dependencies": {
     "compression": "^1.7.4",
     "express": "^4.17.1",
-    "mongoose": "^5.10.2",
     "serve-favicon": "^2.5.0",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.4"
+    "clean-webpack-plugin": "^3.0.0",
+    "css-loader": "^4.3.0",
+    "dotenv": "^8.2.0",
+    "html-webpack-plugin": "^4.5.0",
+    "nodemon": "^2.0.4",
+    "style-loader": "^1.2.1",
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.3.12"
   }
 }
