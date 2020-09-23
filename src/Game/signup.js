@@ -1,4 +1,5 @@
 import { loadLobby } from "./loadLobby.js";
+import "./game.css";
 
 //Responsive button
 const room_input = document.getElementById("roomid-input");
