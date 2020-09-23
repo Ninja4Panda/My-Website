@@ -10,7 +10,6 @@ module.exports = merge(common, {
         path: path.resolve(__dirname, './build_dev')
     },
     plugins: [
-        new MiniCssExtractPlugin({filename: '[name]-[contentHash].css'}),
         new HtmlWebpackPlugin({
             filename: 'Game/game.html',
             template: 'src/Game/game.html',
