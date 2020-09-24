@@ -1,3 +1,5 @@
 .env.prod
 webpack.prod.js
 build
+mycommands
+node_modules
