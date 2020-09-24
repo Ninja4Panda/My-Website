@@ -1,5 +1,5 @@
 # My-Website
-A Website that I created using vanilla javascript, bootstrap and expresjs
+A personal website created using vanilla javascript, bootstrap 4 and expresjs hosting on a raspberry pi
 
 ## **Security Concerns**
 - [ ] Implement Content Security Policy(CSP)
