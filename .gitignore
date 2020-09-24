@@ -2,3 +2,4 @@
 webpack.prod.js
 build
 favicon_io
+node_modules
