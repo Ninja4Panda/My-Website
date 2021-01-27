@@ -7,6 +7,10 @@ A personal website created using vanilla javascript, bootstrap 4 and expresjs ho
 ## **Main Page**
 Main page for the portfolio
 
+### TODO
+- [ ] Change carousel of recipe 
+- Currently using game page photos 
+
 ## **Recipe Page**
 Mom's recipes using local mongoDB server 
 
