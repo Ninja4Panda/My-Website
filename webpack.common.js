@@ -2,7 +2,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
     entry: {
-        'Game/game': './src/Game/signup.js'
+        'game': './src/Game/signup.js'
     },
     plugins: [
         new CleanWebpackPlugin()

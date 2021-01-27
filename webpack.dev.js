@@ -11,16 +11,17 @@ module.exports = merge(common, {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            filename: 'Recipe/recipe.html',
-            template: 'src/Recipe/recipe.html',
-            hash:true,
+            filename: 'Game/game.html',
+            template: 'src/Game/game.html',
+            hash:true,            
+            chunks: ['game'],
             favicon:'src/favicon.ico'
         }),        
         new HtmlWebpackPlugin({
-            filename: 'Game/game.html',
-            template: 'src/Game/game.html',
-            hash:true,
-            favicon:'src/favicon.ico'
+            filename: 'Recipe/recipe.html',
+            template: 'src/Recipe/recipe.html',
+            favicon:'src/favicon.ico',
+            chunks: [],
         }),        
         new HtmlWebpackPlugin({
             filename: 'Main/index.html',

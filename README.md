@@ -11,9 +11,11 @@ Main page for the portfolio
 Database of Mom's recipes
 
 ### TODO
-- [ ] Different food for recipe 
+- [ ] Implement search functionaity
 
-- [ ] Search function for recipe page
+- [ ] Implement categories
+
+- [ ] Storing photo with gridFS
 
 ## **Game Page**
 Recreating the classic Mafia game using socket-io 
