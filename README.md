@@ -7,8 +7,8 @@ A personal website created using vanilla javascript, bootstrap 4 and expresjs ho
 ## **Main Page**
 Main page for the portfolio
 
-## **Cook Page**
-Database of Mom's recipes
+## **Recipe Page**
+Mom's recipes using local mongoDB server 
 
 ### TODO
 - [ ] Implement search functionaity
