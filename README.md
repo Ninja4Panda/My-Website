@@ -15,6 +15,8 @@ Main page for the portfolio
 Mom's recipes using local mongoDB server 
 
 ### TODO
+- [ ] Implement mtls admin page for updating recipes
+
 - [ ] Storing photo with gridFS
 
 - [ ] Implement search functionaity
@@ -60,7 +62,7 @@ During voting phase, if a player that got voted disconnected, voting phase will 
 
 ### Known bugs
 - Auto scroll feature for chat not functioning as well as anticipated when a big paragraph gets send
-- ~Roomid & uid can be number sometimes which makes holes array~ (Fixed by adding checks *6/09/2020*)
-- ~Start Game doesn't work when there is only one person in the room(It shouldn't work anyways. During testing, when there is only one person in the room, the room will not function correctly)~ (Fixed by putting the start chat event outside of join room callback *20/09/2020*)
 - ~A player disconnected after being picked as kill target doesn't work correctly.~ (Fixed by putting a check inside died function *22/09/2020*)
 - ~If a player disconnect right at the moment when another player vote him the voting player will be disconnected.~ (Fixed by changing operations in the catch *22/09/2020*)
+- ~Start Game doesn't work when there is only one person in the room(It shouldn't work anyways. During testing, when there is only one person in the room, the room will not function correctly)~ (Fixed by putting the start chat event outside of join room callback *20/09/2020*)
+- ~Roomid & uid can be number sometimes which makes holes array~ (Fixed by adding checks *6/09/2020*)
