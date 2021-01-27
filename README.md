@@ -11,11 +11,11 @@ Main page for the portfolio
 Mom's recipes using local mongoDB server 
 
 ### TODO
+- [ ] Storing photo with gridFS
+
 - [ ] Implement search functionaity
 
 - [ ] Implement categories
-
-- [ ] Storing photo with gridFS
 
 ## **Game Page**
 Recreating the classic Mafia game using socket-io 
@@ -37,10 +37,6 @@ During voting phase, if a player that got voted disconnected, voting phase will 
 - [ ] Change implementation of uid 
 - Changing the uid to be numbers instead of randomly generated value to allow easier communication
 
-- [x] Implement disconnection *4/09/2020*
-
-- [x] Implement clickable avator *20/09/2020*
-
 - [x] Implement spectator *22/09/2020*
 - Players that already died should be able to see what is going on but can't talk 
 
@@ -51,8 +47,12 @@ During voting phase, if a player that got voted disconnected, voting phase will 
 - [x] Test for players that trys to change the img.id to alive from dead *22/09/2020*
 - Should show that they voted for no one 
 
+- [x] Implement clickable avator *20/09/2020*
+
 - [x] Implement nurse logic *12/09/2020*
 - Nurse finds out the potenially dead person in game.votes when he still has a revive potion
+
+- [x] Implement disconnection *4/09/2020*
 
 ### Known bugs
 - Auto scroll feature for chat not functioning as well as anticipated when a big paragraph gets send
