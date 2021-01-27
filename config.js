@@ -4,5 +4,6 @@ module.exports = {
   staticFiles: process.env.staticFiles,
   mainPage: process.env.mainPage,
   gamePage: process.env.gamePage,
+  recipesPage: process.env.recipesPage,
   errorPage: process.env.errorPage
 };
