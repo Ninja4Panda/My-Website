@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const path = require("path");
 const http = require("http").createServer(app);
-const { port, staticFiles, mainPage, gamePage, errorPage } = require('./config');
+const { port, staticFiles, mainPage, gamePage, errorPage, recipesPage } = require('./config');
 
 //Compress all routes
 const compression = require('compression');
@@ -21,12 +21,19 @@ app.use(express.static(path.join(__dirname+staticFiles)));
 const ioFunc = require("./server/Game/io");
 ioFunc(http);
 
+//Handles main route
 app.get("/",(req, res) => {
   res.sendFile(process.cwd()+mainPage);
 });
 
+//Handles game route
 app.get("/game",(req, res) => {
   res.sendFile(process.cwd()+gamePage);
+});
+
+//Handles recipes route
+app.get("/recipes", (req, res)=> {
+  res.sendFile(process.cwd()+recipesPage);
 });
 
 // Handles page not found error
