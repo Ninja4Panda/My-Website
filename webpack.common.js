@@ -26,7 +26,7 @@ module.exports = {
                                 return `/Game/assests/${url}`;
                             } else if (/Error/.test(resourcePath)) {
                                 return `/Error/assests/${url}`;
-                            } 
+                            }
                             return `/${url}`;
                         }
                     }

@@ -13,22 +13,10 @@ module.exports = merge(common, {
         new HtmlWebpackPlugin({
             filename: 'Game/game.html',
             template: 'src/Game/game.html',
-            hash:true,            
+            hash:true,        
+            favicon:'src/favicon.ico',    
             chunks: ['game'],
-        }),        
-        new HtmlWebpackPlugin({
-            filename: 'Recipe/search.html',
-            template: 'src/Recipe/search.html',
-            favicon:'src/favicon.ico',
-            chunks: [],
-            hash: true
-        }),  
-        new HtmlWebpackPlugin({
-            filename: 'Recipe/recipe.html',
-            template: 'src/Recipe/recipe.html',
-            favicon:'src/favicon.ico',
-            inject: false
-        }),        
+        }),         
         new HtmlWebpackPlugin({
             filename: 'Main/index.html',
             template: 'src/Main/index.html',
