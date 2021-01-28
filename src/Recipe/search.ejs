@@ -16,29 +16,27 @@
 
     <div style="padding: 40px;">
         <ul class="nav nav-tabs mb-3 justify-content-center" id="pills-tab" role="tablist" >
-            <li class="nav-item">
-            <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" style="font-size:25px" role="tab" aria-controls="pills-home" aria-selected="true">🐷</a>
-            </li>
-            <li class="nav-item">
-            <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" style="font-size:25px" role="tab" aria-controls="pills-profile" aria-selected="false">🦐</a>
-            </li>
+            <a class="nav-item nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" style="font-size:25px" role="tab" aria-controls="pills-home" aria-selected="true">🐷</a>
+            <a class="nav-item nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" style="font-size:25px" role="tab" aria-controls="pills-profile" aria-selected="false">🦐</a>
         </ul>
         <div class="tab-content" id="pills-tabContent">
-            <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
-                <div class="card mb-3" style="max-width: 540px;">
-                    <div class="row g-0">
-                      <div class="col-md-4">
-                        <img src="..." alt="...">
-                      </div>
-                      <div class="col-md-8">
-                        <div class="card-body">
-                          <h5 class="card-title">Card title</h5>
-                          <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                          <p class="card-text"><small class="text-muted">Cook time 10 min</small></p>
+            <div class="d-flex tab-pane fade show active flex-wrap" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                <% recipes.forEach(recipe => { %>
+                    <div class="card mb-3" style="max-width: 540px; margin-right: 16px;">
+                        <div class="row g-0">
+                        <div class="col-md-4">
+                            <img src="..." alt="...">
                         </div>
-                      </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                            <h5 class="card-title"><%=recipe.title%></h5>
+                            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                            <p class="card-text"><small class="text-muted">Cook time 10 min</small></p>
+                            </div>
+                        </div>
+                        </div>
                     </div>
-                  </div>
+                <% }) %>
             </div>
             <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">..dsfsfdsds.</div>
         </div>
