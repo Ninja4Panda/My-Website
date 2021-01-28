@@ -12,7 +12,7 @@ Main page for the portfolio
 - Currently using game page photos 
 
 ## **Recipe Page**
-Mom's recipes using local mongoDB server 
+Mom's recipes using local mongoDB database
 
 ### TODO
 - [ ] Implement mtls admin page for updating recipes

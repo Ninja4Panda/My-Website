@@ -2,7 +2,8 @@ const express = require("express");
 const app = express();
 const path = require("path");
 const http = require("http").createServer(app);
-const { port, staticFiles, mainPage, gamePage, errorPage, recipePage } = require('./config');
+const recipesRouter = require("./routes/recipes"); 
+const { port, staticFiles, mainPage, gamePage, errorPage } = require('./config');
 
 //Compress all routes
 const compression = require('compression');
@@ -13,6 +14,10 @@ app.use(compression());
 // app.use( helmet({
 //   contentSecurityPolicy: false,
 // }));
+
+//Connect to the database
+const connectDB = require("./db");
+connectDB()
 
 //Builds all public files for pages
 app.use(express.static(path.join(__dirname+staticFiles)));
@@ -32,9 +37,7 @@ app.get("/game",(req, res) => {
 });
 
 //Handles recipes route
-app.get("/recipe", (req, res)=> {
-  res.sendFile(process.cwd()+recipePage);
-});
+app.use('/recipe', recipesRouter);
 
 // Handles page not found error
 app.use((req, res) => {
