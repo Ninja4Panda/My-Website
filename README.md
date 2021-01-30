@@ -21,7 +21,7 @@ Mom's recipes using local mongoDB database
 
 - [ ] Implement search functionaity
 
-- [ ] Implement categories
+- [x] Implement categories *30/01/2021*
 
 ## **Game Page**
 Recreating the classic Mafia game using socket-io 

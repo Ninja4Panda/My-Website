@@ -3,7 +3,9 @@ const router = express.Router();
 
 router.get('/', (req, res)=> { 
     const recipes = [{
-        title: 'YOUR mum'
+        title: 'YOUR mum',
+        description: 'This is a beaty to enjoy there is 100s asdfsadf',
+        cookTime: 10
     }, {
         title: 'my mum'
     }]

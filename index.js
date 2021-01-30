@@ -16,8 +16,8 @@ app.use(compression());
 // }));
 
 //Connect to the database
-// const connectDB = require("./db");
-// connectDB();
+const connectDB = require("./db");
+connectDB();
 
 //Set the views directory to the project directory
 app.set('views', process.cwd())
