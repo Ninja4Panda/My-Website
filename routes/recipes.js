@@ -9,7 +9,7 @@ router.get('/', (req, res)=> {
     }, {
         title: 'my mum'
     }]
-    res.render('./src/Recipe/search.ejs', { recipes: recipes});
+    res.render('./src/Recipe/views/search.ejs', { recipes: recipes});
 });
 
 module.exports = router
