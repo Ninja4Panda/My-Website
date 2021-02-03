@@ -17,7 +17,8 @@ Mom's recipes using local mongoDB database
 ### TODO
 - [ ] Implement mtls admin page for updating recipes
 
-- [ ] Storing photo with gridFS
+- [ ] ~Storing photo with gridFS~
+- Changed to storing the name of the file 
 
 - [ ] Implement search functionaity
 

@@ -19,13 +19,15 @@ app.use(compression());
 const connectDB = require("./db");
 connectDB();
 
+//Builds all public files for pages
+app.use(express.static(path.join(__dirname+staticFiles)));
+
 //Set the views directory to the project directory
 app.set('views', process.cwd())
+
 //Handles recipes route
 app.use('/recipe', recipesRouter);
 
-//Builds all public files for pages
-app.use(express.static(path.join(__dirname+staticFiles)));
 
 //Handles the io connection for game
 const ioFunc = require("./server/Game/io");

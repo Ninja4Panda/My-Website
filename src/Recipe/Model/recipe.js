@@ -27,6 +27,10 @@ const recipeSchema = new mongoose.Schema({
     difficulty: {
         type: String,
         required:true
+    },
+    proPic: {
+        type: String,
+        required:true
     }
 })
 
