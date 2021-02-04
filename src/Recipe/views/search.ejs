@@ -17,62 +17,18 @@
     <div style="padding: 40px;">
         <nav>
             <div class="nav nav-tabs mb-3 justify-content-center" id="pills-tab" role="tablist" >
-                <a class="nav-item nav-link active" id="pills-pig-tab" data-toggle="pill" href="#pills-pig" style="font-size:25px" role="tab" aria-controls="pills-pig" aria-selected="true">🐷</a>
-                <a class="nav-item nav-link" id="🐷-tab" data-toggle="pill" href="#🐷" style="font-size:25px" role="tab" aria-controls="🐷" aria-selected="false">🐮</a>
+                <a class="nav-item nav-link active" id="🐷-tab" data-toggle="pill" href="#🐷" style="font-size:25px" role="tab" aria-controls="🐷" aria-selected="true">🐷</a>
             </div>
         </nav>
         <div class="tab-content" id="nav-tabContent">
-            <div class="tab-pane fade show active" id="pills-pig" role="tabpanel" aria-labelledby="pills-pig-tab">
+            <div class="tab-pane fade show active" id="pills-🐷" role="tabpanel" aria-labelledby="pills-🐷-tab">
                 <div class="d-flex flex-wrap justify-content-center">
-
-                    <% recipes.forEach(recipe => { %>
-                        <div class="card mb-3" style="width: 540px; margin-right: 20px;">
-                            <div class="row g-0"> 
-                            <div class="col-md-4">
-                                <img src="./assests/<%= recipe.proPic %>">
-                            </div>
-                            <div class="col-md-8">
-                                <div class="card-body">
-                                <h5 class="card-title"><%=recipe.title%></h5>
-                                <p class="card-text"><%=recipe.description%></p>
-
-                                <div class="container">
-                                    <div class="row">
-                                <% for (i=0; i < recipe.difficulty; i++) { %>
-                                    <p class="card-text">😰</p>
-                                <% } %>
-                                    </div>
-                                </div>
-
-                                </div>
-                            </div>
-                            </div>
-                        </div>
+                    <% pigs.forEach(recipe => { %>
+                        <%- include('./cardView', {recipe: recipe})%> 
                     <% }) %>                 
-
                 </div>
             </div>
-            <div class="flex-wrap tab-pane fade" id="🐷" role="tabpanel" aria-labelledby="🐷-tab">..dsfsfdsds.</div>
         </div>
-
-
-
-        <!-- <% recipes.forEach(recipe => { %>
-            <div class="card mb-3" style="width: 540px; margin-right: 16px;">
-                <div class="row g-0">
-                <div class="col-md-4">
-                    <img src="..." alt="...">
-                </div>
-                <div class="col-md-8">
-                    <div class="card-body">
-                    <h5 class="card-title"><%=recipe.title%></h5>
-                    <p class="card-text"><%=recipe.description%></p>
-                    <p class="card-text"><small class="text-muted"><%=recipe.cookTime%> min cook time</small></p>
-                    </div>
-                </div>
-                </div>
-            </div>
-        <% }) %>                  -->
     </div> 
 </body>
 </html>
