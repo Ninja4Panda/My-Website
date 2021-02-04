@@ -3,7 +3,7 @@ const app = express();
 const path = require("path");
 const http = require("http").createServer(app);
 const recipesRouter = require("./routes/recipes"); 
-const { port, staticFiles, mainPage, gamePage, errorPage } = require('./config');
+const { port, staticFiles, mainPage, gamePage, errorPage, recipePage } = require('./config');
 
 //Compress all routes
 const compression = require('compression');
@@ -21,14 +21,13 @@ connectDB();
 
 //Builds all public files for pages
 app.use(express.static(path.join(__dirname+staticFiles)));
-app.use(express.static(path.join(__dirname+"/src/Recipe")));
+app.use(express.static(path.join(__dirname+recipePage)));
 
 //Set the views directory to the project directory
 app.set('views', process.cwd())
 
 //Handles recipes route
 app.use('/recipe', recipesRouter);
-
 
 //Handles the io connection for game
 const ioFunc = require("./server/Game/io");
