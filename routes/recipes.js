@@ -5,18 +5,22 @@ const Recipe = require('../src/Recipe/Model/recipe')
 router.get('/', async (req, res)=> { 
     try {
         const pigs = []
+        const others = []
         const recipes = await Recipe.find()
         recipes.forEach(recipe => {
             switch(recipe.type) {
                 case "pig":
                     pigs.push(recipe)
                     break;
+                case "other":
+                    others.push(recipe)
+                    break;
                 default:
                     break;
             }
         });
 
-        res.render('./src/Recipe/views/search.ejs', { pigs: pigs})
+        res.render('./src/Recipe/views/search.ejs', { pigs: pigs, others: others})
     } catch(err) {
         res.render('./src/Recipe/views/error.ejs')
     }

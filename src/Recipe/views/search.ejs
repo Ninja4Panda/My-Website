@@ -11,19 +11,32 @@
 </head>
 <body style="background: rgb(224, 171, 91)">
     <div class="header" style="text-align:center; padding:60px;">
-        <p style="color:rgb(0, 0, 0);">Learn how to cook like mums!</p>
+        <h1 class="display-4 font-italic" style="color:rgb(0, 0, 0);">Learn how to cook like mums!</h1>
+        <h5 class="display-5 font-italic" style="color:rgb(46, 42, 42);">Or at least my mum</h5>
+
     </div>
 
-    <div style="padding: 40px;">
+    <div style="padding: 20px;">
         <nav>
             <div class="nav nav-tabs mb-3 justify-content-center" id="pills-tab" role="tablist" >
-                <a class="nav-item nav-link active" id="🐷-tab" data-toggle="pill" href="#🐷" style="font-size:25px" role="tab" aria-controls="🐷" aria-selected="true">🐷</a>
+                <a class="nav-item nav-link active" id="pig-tab" data-toggle="pill" href="#pig" style="font-size:25px" role="tab" aria-controls="pig" aria-selected="true">🐷</a>
+                <a class="nav-item nav-link" id="other-tab" data-toggle="pill" href="#other" style="font-size:25px" role="tab" aria-controls="other" aria-selected="false">🍽</a>
             </div>
         </nav>
         <div class="tab-content" id="nav-tabContent">
-            <div class="tab-pane fade show active" id="pills-🐷" role="tabpanel" aria-labelledby="pills-🐷-tab">
+            <!-- pig -->
+            <div class="tab-pane fade show active" id="pig" role="tabpanel" aria-labelledby="pig-tab">
                 <div class="d-flex flex-wrap justify-content-center">
                     <% pigs.forEach(recipe => { %>
+                        <%- include('./cardView', {recipe: recipe})%> 
+                    <% }) %>                 
+                </div>
+            </div>
+
+            <!-- other -->
+            <div class="tab-pane fade" id="other" role="tabpanel" aria-labelledby="other-tab">
+                <div class="d-flex flex-wrap justify-content-center">
+                    <% others.forEach(recipe => { %>
                         <%- include('./cardView', {recipe: recipe})%> 
                     <% }) %>                 
                 </div>

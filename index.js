@@ -21,6 +21,7 @@ connectDB();
 
 //Builds all public files for pages
 app.use(express.static(path.join(__dirname+staticFiles)));
+app.use(express.static(path.join(__dirname+"/src/Recipe")));
 
 //Set the views directory to the project directory
 app.set('views', process.cwd())
