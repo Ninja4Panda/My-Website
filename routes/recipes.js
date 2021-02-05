@@ -31,7 +31,6 @@ router.get('/', async (req, res)=> {
 router.get('/:title', async (req, res)=> {
     try {
         const recipe = await Recipe.findOne({ title:req.params.title })
-        console.log(recipe)
         if(recipe==null) {
             res.redirect("/recipe")
         } else {
