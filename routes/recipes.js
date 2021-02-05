@@ -30,12 +30,21 @@ router.get('/', async (req, res)=> {
 
 router.get('/:title', async (req, res)=> {
     try {
-        const recipe = await Recipe.findOne({title:req.params.title})
+        const recipe = await Recipe.findOne({ title:req.params.title })
         console.log(recipe)
-        res.render(viewDir+'detailView.ejs', { recipe: recipe})
-    } catch {
-        console.log(":Dddd")
+        if(recipe==null) {
+            res.redirect("/recipe")
+        } else {
+            res.render(viewDir+'detailView.ejs', { recipe: recipe})
+        }
+    } catch (err) {
         res.render(viewDir+'error.ejs')
     }
 })
+
+// Handles url error
+router.use((req, res) => {
+    res.redirect("/recipe")
+})
+
 module.exports = router
