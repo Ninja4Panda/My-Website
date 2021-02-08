@@ -43,7 +43,7 @@ app.get("/game",(req, res) => {
   res.sendFile(process.cwd()+gamePage);
 });
 
-// Handles page not found error
+// Handles page not found
 app.use((req, res) => {
   res.status(404).sendFile(process.cwd()+errorPage);
 });

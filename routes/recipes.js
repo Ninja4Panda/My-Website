@@ -42,8 +42,8 @@ router.get('/:title', async (req, res)=> {
 })
 
 // Handles url error
-router.use((req, res) => {
+router.use(function(e, req, res, next) {
     res.redirect("/recipe")
-})
+});
 
 module.exports = router
