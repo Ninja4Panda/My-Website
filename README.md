@@ -8,7 +8,7 @@ A personal website created using vanilla javascript, bootstrap 4 and expresjs ho
 Main page for the portfolio
 
 ### TODO
-- [ ] Change carousel of recipe 
+- [x] Change carousel of recipe 
 - Currently using game page photos 
 
 ## **Recipe Page**
