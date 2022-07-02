@@ -1,7 +1,6 @@
 # Build folders
 build
 build_dev
-favicon_io
 
 # Prod things
 .env.prod
