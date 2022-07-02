@@ -1,6 +1,11 @@
+# Build folders
+build
+build_dev
+favicon_io
+
+# Prod things
 .env.prod
 webpack.prod.js
-build
-favicon_io
+mycommands
+
 node_modules
-build_dev
