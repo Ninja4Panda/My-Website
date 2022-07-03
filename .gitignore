@@ -6,5 +6,7 @@ build_dev
 .env.prod
 webpack.prod.js
 mycommands
+cert
 
+# Node
 node_modules

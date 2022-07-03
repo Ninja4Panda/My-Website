@@ -1,13 +1,17 @@
 const express = require("express");
 const app = express();
 const path = require("path");
-const http = require("http").createServer(app);
-const recipesRouter = require("./routes/recipes"); 
+const fs = require("fs");
+const https = require("https").createServer({
+  key: fs.readFileSync(path.join(__dirname, 'cert', 'server.key')),
+  cert: fs.readFileSync(path.join(__dirname, 'cert', 'cert.pem-chain')),
+}, app);
+const recipesRouter = require("./routes/recipes");
 const { port, staticFiles, mainPage, gamePage, errorPage, recipePage } = require('./config');
 
 //Compress all routes
 const compression = require('compression');
-app.use(compression()); 
+app.use(compression());
 
 //Libray that sets up http headers for security purposes not used for now
 // const helmet = require('helmet');
@@ -20,8 +24,8 @@ const connectDB = require("./db");
 connectDB();
 
 //Builds all public files for pages
-app.use(express.static(path.join(__dirname+staticFiles)));
-app.use(express.static(path.join(__dirname+recipePage)));
+app.use(express.static(path.join(__dirname + staticFiles)));
+app.use(express.static(path.join(__dirname + recipePage)));
 
 //Set the views directory to the project directory
 app.set('views', process.cwd())
@@ -31,23 +35,23 @@ app.use('/recipe', recipesRouter);
 
 //Handles the io connection for game
 const ioFunc = require("./server/Game/io");
-ioFunc(http);
+ioFunc(https);
 
 //Handles main route
-app.get("/",(req, res) => {
-  res.sendFile(process.cwd()+mainPage);
+app.get("/", (req, res) => {
+  res.sendFile(process.cwd() + mainPage);
 });
 
 //Handles game route
-app.get("/game",(req, res) => {
-  res.sendFile(process.cwd()+gamePage);
+app.get("/game", (req, res) => {
+  res.sendFile(process.cwd() + gamePage);
 });
 
 // Handles page not found
 app.use((req, res) => {
-  res.status(404).sendFile(process.cwd()+errorPage);
+  res.status(404).sendFile(process.cwd() + errorPage);
 });
 
-http.listen(port, () => {
+https.listen(port, () => {
   console.log(`Listening on *:${port}`);
 });
