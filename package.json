@@ -10,7 +10,7 @@
     "start": "node -r dotenv/config index.js dotenv_config_path=.env.prod"
   },
   "keywords": [],
-  "author": "Ninja Panda",
+  "author": "Ninja 4 Panda",
   "license": "ISC",
   "dependencies": {
     "compression": "^1.7.4",
